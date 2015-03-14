@@ -8,14 +8,16 @@ var gl;
 
 final int dims = 2;
 
-final Float32List vertices = new Float32List.fromList( [
-      -1.0, -1.0,
-       1.0,  1.0,
-      -1.0,  1.0,
+num planeSize = 1.0; // around 0,0
 
-      -1.0, -1.0,
-       1.0,  1.0,
-       1.0, -1.0
+final Float32List vertices = new Float32List.fromList( [
+      -planeSize, -planeSize,
+       planeSize,  planeSize,
+      -planeSize,  planeSize,
+
+      -planeSize, -planeSize,
+       planeSize,  planeSize,
+       planeSize, -planeSize
 ] );
 
 main() {
@@ -45,8 +47,8 @@ initGeom(Program program) {
   gl.clear(RenderingContext.COLOR_BUFFER_BIT);
 
 // Устанавливаем цвет, который будет передан фрагментному шейдеру
-  UniformLocation uColor = gl.getUniformLocation(program, "uColor");
-  UniformLocation viewport = gl.getUniformLocation(program, "viewport");
+  UniformLocation uColor = gl.getUniformLocation(program, "u_color");
+  UniformLocation viewport = gl.getUniformLocation(program, "u_viewport");
 // Как и для очистки холста он задаётся в формате RGBA
   gl.uniform2f(viewport,  canvas.width, canvas.height);
   gl.uniform2fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
@@ -54,30 +56,8 @@ initGeom(Program program) {
 
 initShaders() {
 
-
-
-  String vsSource = """
-    attribute vec2 a_position;
-    varying vec2 v_texCoord;
-
-    void main() 
-    {
-        v_texCoord = a_position;
-        gl_Position.xy = a_position;
-
-    }""";
-
-// Фрагментный шейдер
-  String fsSource = """
-    precision mediump float;
-    uniform vec4 uColor;
-    void main() {
-        gl_FragColor = uColor;
-    }""";
-//Шейдеры написаны, теперь их надо скомпилировать и загрузить в контекст.
-//Компилируем
   Shader vs = gl.createShader(RenderingContext.VERTEX_SHADER);
-  gl.shaderSource(vs, vsSource);
+  gl.shaderSource(vs,querySelector("#shader-vx").text );
   gl.compileShader(vs);
   if (!gl.getShaderParameter(vs, RenderingContext.COMPILE_STATUS)) {
     print(gl.getShaderInfoLog(vs));

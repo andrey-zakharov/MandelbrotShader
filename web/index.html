@@ -3,28 +3,44 @@
   <head>
     <title>Mandelbrot</title>
     <style>
+    html, body, div, p {
+      margin: 0;
+      padding: 0;
+    }
     body {
       font-family: Monospace;
       background-color: #f0f0f0;
-      margin: 0;
-      padding: 0;
       overflow: hidden;
     }
     </style>
 
+  <script id = "shader-vx" type="x-shader/x-vertex">
+#ifdef GL_ES
+precision highp float;
+#endif
+    attribute vec2 a_position;
+    varying vec2 v_texCoord;
+
+    void main()
+    {
+        v_texCoord = a_position;
+        gl_Position = vec4(a_position, 0.0, 1.0);
+    }
+</script>
     <script id = "shader-fx" type="x-shader/x-fragment">
       #ifdef GL_ES
             precision highp float;
       #endif
 
-    uniform vec4 uColor;
-    uniform vec2 viewport;
+    uniform vec4 u_color;
+    uniform vec2 u_viewport;
     varying vec2 v_texCoord;
 
     void main() {
 
-        gl_FragColor.r= gl_FragCoord.x / viewport.x;
-        gl_FragColor.g= gl_FragCoord.y / viewport.y;
+        gl_FragColor.r= (v_texCoord.x + 1.0) / 2.0;
+        gl_FragColor.g= (v_texCoord.y + 1.0) / 2.0;
+
         gl_FragColor.a = 1.0;
       }
 
