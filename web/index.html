@@ -6,14 +6,39 @@
     body {
       font-family: Monospace;
       background-color: #f0f0f0;
-      margin: 5px;
+      margin: 0;
+      padding: 0;
       overflow: hidden;
     }
     </style>
+
+    <script id = "shader-fx" type="x-shader/x-fragment">
+      #ifdef GL_ES
+            precision highp float;
+      #endif
+
+    uniform vec4 uColor;
+    varying vec2 v_texCoord;
+
+    void main() {
+        gl_FragColor = uColor;
+        gl_FragColor.r=  uColor.x / 1000;
+        gl_FragColor.g=  uColor.y;
+      }
+
+    vec2 mult(vec2 a, vec2 b) {
+      return vec2(
+        a.x*b.x - a.y*b.y,
+        a.x*b.y + a.y*b.x
+      );
+    }
+    </script>
+
+
   </head>
   <body>
   <div id='status'>...</div>
-    <script type="application/dart" src="mandel.dart"></script>
+    <script type="application/dart" src="main.dart"></script>
     <script type="text/javascript" src="packages/browser/dart.js"></script>
   </body>
 </html>

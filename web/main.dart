@@ -6,26 +6,39 @@ import 'dart:typed_data';
 Element canvas;
 var gl;
 
+final int dims = 2;
+
+final Float32List vertices = new Float32List.fromList( [
+      -1.0, -1.0,
+       1.0,  1.0,
+      -1.0,  1.0,
+
+      -1.0, -1.0,
+       1.0,  1.0,
+       1.0, -1.0
+] );
+
 main() {
   initGL();
   initGeom(initShaders());
   draw();
 }
 
+status( String message ) {
+  var status = querySelector('#status');
+  status.innerHtml = '<p>${message}</p>';
+}
+
 initGeom(Program program) {
-  //Задаём координаты в трехмерном пространстве
-  Float32List vertices = new Float32List.fromList(
-      [-1.0, 1.0, 0.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-                       1.0, 1.0, 1.0, -1.0, 1.0, 1.0, -1.0, -1.0, 1.0]);
+
   //Создаём буфер и загружаем в него координаты
   gl.bindBuffer(RenderingContext.ARRAY_BUFFER, gl.createBuffer());
   gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, vertices, RenderingContext.STATIC_DRAW);
-//Указываем сколько вершин нарисовано
-  int numItems = 4;
+
 // Устанавливаем позицию, которая будет передана в вершинный шейдер
   int aPosition = gl.getAttribLocation(program, "aPosition");
   gl.enableVertexAttribArray(aPosition);
-  gl.vertexAttribPointer(aPosition, 3, RenderingContext.FLOAT, false, 0, 0);
+  gl.vertexAttribPointer(aPosition, dims, RenderingContext.FLOAT, false, 0, 0);
 
 //Очищаем холст заливая его новым цветом(RedGreenBlueAlpha)
   gl.clearColor(0.0, 0.0, 0.0, 1);
@@ -42,10 +55,14 @@ initShaders() {
 
 
   String vsSource = """
-    attribute vec3 aPosition;
+    attribute vec2 aPosition;
+    varying vec2 v_texCoord;
+
     void main() 
     {
-        gl_Position = vec4(aPosition, 1);
+        v_texCoord = aPosition;
+        gl_Position.xy = aPosition;
+
     }""";
 
 // Фрагментный шейдер
@@ -60,9 +77,21 @@ initShaders() {
   Shader vs = gl.createShader(RenderingContext.VERTEX_SHADER);
   gl.shaderSource(vs, vsSource);
   gl.compileShader(vs);
+  if (!gl.getShaderParameter(vs, RenderingContext.COMPILE_STATUS)) {
+    print(gl.getShaderInfoLog(vs));
+    status(gl.getShaderInfoLog(vs));
+    throw new Exception(gl.getShaderInfoLog(vs));
+  }
+
   Shader fs = gl.createShader(RenderingContext.FRAGMENT_SHADER);
-  gl.shaderSource(fs, fsSource);
+  //gl.shaderSource(fs, fsSource);
+  gl.shaderSource(fs, querySelector("#shader-fx").text);
   gl.compileShader(fs);
+  if (!gl.getShaderParameter(fs, RenderingContext.COMPILE_STATUS)) {
+    print(gl.getShaderInfoLog(fs));
+    status(gl.getShaderInfoLog(fs));
+    throw new Exception(gl.getShaderInfoLog(fs));
+  }
 
 // Загружаем шейдеры в GPU
   Program p = gl.createProgram();
@@ -70,34 +99,31 @@ initShaders() {
   gl.attachShader(p, fs);
   gl.linkProgram(p);
   gl.useProgram(p);
-//Проверяем всё ли удачно скомпилировалось.
-  if (!gl.getShaderParameter(vs, RenderingContext.COMPILE_STATUS)) {
-    print(gl.getShaderInfoLog(vs));
-  }
-
-  if (!gl.getShaderParameter(fs, RenderingContext.COMPILE_STATUS)) {
-    print(gl.getShaderInfoLog(fs));
-  }
-
   if (!gl.getProgramParameter(p, RenderingContext.LINK_STATUS)) {
     print(gl.getProgramInfoLog(p));
+    status(gl.getShaderInfoLog(p));
+    throw new Exception(gl.getShaderInfoLog(p));
   }
 
   return p;
 }
+
 initGL() {
-  var status = querySelector('#status');
+
   canvas = new Element.tag('canvas');
   //document.body.appendChild( container );
   document.body.children.add(canvas);
+  canvas.width = canvas.parent.clientWidth;
+  canvas.height = window.screen.height;
   gl = canvas.getContext("webgl");
   if (gl == null) gl = canvas.getContext("experimental-webgl");
   if (gl == null) {
-    status.innerHtml = '<p>Простите, ваш браузер не поддерживает WebGl</p>';
+    status('Простите, ваш браузер не поддерживает WebGl');
     return;
   }
 
   gl.viewport(0, 0, canvas.width, canvas.height);
+  status('');
 }
 
 initScene() {
@@ -105,5 +131,5 @@ initScene() {
 }
 
 draw() {
-  gl.drawArrays(RenderingContext.TRIANGLES, 0, 4);
+  gl.drawArrays(RenderingContext.TRIANGLES, 0, vertices.length ~/ dims);
 }
