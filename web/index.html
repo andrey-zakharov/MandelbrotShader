@@ -18,12 +18,13 @@
       #endif
 
     uniform vec4 uColor;
+    uniform vec2 viewport;
     varying vec2 v_texCoord;
 
     void main() {
         gl_FragColor = uColor;
-        gl_FragColor.r=  uColor.x / 1000;
-        gl_FragColor.g=  uColor.y;
+        gl_FragColor.r=  v_texCoord.x;
+        gl_FragColor.g=  gl_FragCoord.y;
       }
 
     vec2 mult(vec2 a, vec2 b) {

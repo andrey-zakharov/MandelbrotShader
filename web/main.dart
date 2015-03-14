@@ -48,6 +48,8 @@ initGeom(Program program) {
   UniformLocation uColor = gl.getUniformLocation(program, "uColor");
 // Как и для очистки холста он задаётся в формате RGBA
   gl.uniform4fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
+  
+  gl.uniform2fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
 }
 
 initShaders() {
