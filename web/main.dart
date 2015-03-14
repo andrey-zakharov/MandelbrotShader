@@ -36,7 +36,7 @@ initGeom(Program program) {
   gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, vertices, RenderingContext.STATIC_DRAW);
 
 // Устанавливаем позицию, которая будет передана в вершинный шейдер
-  int aPosition = gl.getAttribLocation(program, "aPosition");
+  int aPosition = gl.getAttribLocation(program, "a_position");
   gl.enableVertexAttribArray(aPosition);
   gl.vertexAttribPointer(aPosition, dims, RenderingContext.FLOAT, false, 0, 0);
 
@@ -46,9 +46,9 @@ initGeom(Program program) {
 
 // Устанавливаем цвет, который будет передан фрагментному шейдеру
   UniformLocation uColor = gl.getUniformLocation(program, "uColor");
+  UniformLocation viewport = gl.getUniformLocation(program, "viewport");
 // Как и для очистки холста он задаётся в формате RGBA
-  gl.uniform4fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
-  
+  gl.uniform2f(viewport,  canvas.width, canvas.height);
   gl.uniform2fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
 }
 
@@ -57,13 +57,13 @@ initShaders() {
 
 
   String vsSource = """
-    attribute vec2 aPosition;
+    attribute vec2 a_position;
     varying vec2 v_texCoord;
 
     void main() 
     {
-        v_texCoord = aPosition;
-        gl_Position.xy = aPosition;
+        v_texCoord = a_position;
+        gl_Position.xy = a_position;
 
     }""";
 

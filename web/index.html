@@ -22,9 +22,10 @@
     varying vec2 v_texCoord;
 
     void main() {
-        gl_FragColor = uColor;
-        gl_FragColor.r=  v_texCoord.x;
-        gl_FragColor.g=  gl_FragCoord.y;
+
+        gl_FragColor.r= gl_FragCoord.x / viewport.x;
+        gl_FragColor.g= gl_FragCoord.y / viewport.y;
+        gl_FragColor.a = 1.0;
       }
 
     vec2 mult(vec2 a, vec2 b) {
