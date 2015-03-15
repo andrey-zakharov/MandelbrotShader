@@ -20,6 +20,22 @@ final Float32List vertices = new Float32List.fromList( [
        planeSize, -planeSize
 ] );
 
+num x1 = -2.0, y1 = -1.5, x2 = 1.0, y2 = 1.5;
+
+Float32List range = new Float32List.fromList( [
+                                               x1, y1,
+                                               x2, y2,
+                                               x1, y2, 
+                                               x1, y1,
+                                               x2, y2,
+                                               x2, y1
+                                       ] );
+
+
+Buffer vertexBuffer;
+Buffer rangeBuffer;
+
+
 main() {
   initGL();
   initGeom(initShaders());
@@ -31,27 +47,45 @@ status( String message ) {
   status.innerHtml = '<p>${message}</p>';
 }
 
-initGeom(Program program) {
-
-  //Создаём буфер и загружаем в него координаты
-  gl.bindBuffer(RenderingContext.ARRAY_BUFFER, gl.createBuffer());
-  gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, vertices, RenderingContext.STATIC_DRAW);
-
-// Устанавливаем позицию, которая будет передана в вершинный шейдер
+initBuffers(Program program) {
   int aPosition = gl.getAttribLocation(program, "a_position");
+  int aRange = gl.getAttribLocation(program, "a_range");
+  
+  vertexBuffer = gl.createBuffer();
+  gl.bindBuffer(RenderingContext.ARRAY_BUFFER, vertexBuffer);
+  gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, vertices, RenderingContext.STATIC_DRAW);
   gl.enableVertexAttribArray(aPosition);
   gl.vertexAttribPointer(aPosition, dims, RenderingContext.FLOAT, false, 0, 0);
+  
+  rangeBuffer = gl.createBuffer();
+  gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
+  gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, range, RenderingContext.STATIC_DRAW);
+  gl.enableVertexAttribArray(aRange);
+  gl.vertexAttribPointer(aRange, dims, RenderingContext.FLOAT, false, 0, 0);
+}
+
+initGeom(Program program) {
+
+  // Устанавливаем позицию, которая будет передана в вершинный шейдер
+
+  initBuffers(program);
+                                
+
 
 //Очищаем холст заливая его новым цветом(RedGreenBlueAlpha)
   gl.clearColor(0.0, 0.0, 0.0, 1);
   gl.clear(RenderingContext.COLOR_BUFFER_BIT);
 
-// Устанавливаем цвет, который будет передан фрагментному шейдеру
+
   UniformLocation uColor = gl.getUniformLocation(program, "u_color");
   UniformLocation viewport = gl.getUniformLocation(program, "u_viewport");
+  UniformLocation kmax = gl.getUniformLocation(program, "u_kmax");
+  UniformLocation u_range = gl.getUniformLocation(program, "u_range");
 // Как и для очистки холста он задаётся в формате RGBA
   gl.uniform2f(viewport,  canvas.width, canvas.height);
+  gl.uniform4f(u_range, x1, y1, x2, y2);
   gl.uniform2fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
+  gl.uniform1i(kmax, 20);
 }
 
 initShaders() {

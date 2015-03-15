@@ -19,11 +19,12 @@
 precision highp float;
 #endif
     attribute vec2 a_position;
+    attribute vec2 a_range;
     varying vec2 v_texCoord;
 
     void main()
     {
-        v_texCoord = a_position;
+        v_texCoord = a_range;
         gl_Position = vec4(a_position, 0.0, 1.0);
     }
 </script>
@@ -34,15 +35,11 @@ precision highp float;
 
     uniform vec4 u_color;
     uniform vec2 u_viewport;
+    //uniform vec2 u_minrange;
+    //uniform vec2 u_maxrange;
+    uniform vec4 u_range; // xy - min, zw - max
+    uniform int u_kmax;
     varying vec2 v_texCoord;
-
-    void main() {
-
-        gl_FragColor.r= (v_texCoord.x + 1.0) / 2.0;
-        gl_FragColor.g= (v_texCoord.y + 1.0) / 2.0;
-
-        gl_FragColor.a = 1.0;
-      }
 
     vec2 mult(vec2 a, vec2 b) {
       return vec2(
@@ -50,6 +47,43 @@ precision highp float;
         a.x*b.y + a.y*b.x
       );
     }
+
+
+    vec2 f( vec2 z, vec2 c ) {
+      vec2 newr = mult(z, z) + c;
+      return newr;
+    }
+
+    vec4 getKmax( vec2 c ) {
+      vec4 res = vec4(0.0, 0.0, 0.0, 0.0);
+      
+      vec2 z = c;
+
+      for (int k = 0; k < 100; k++ ) {
+        z = f( z, c );
+
+        if ( length(z) >= 2.0 ) {
+          res.x = length(z);
+          res.y = float(k);
+          return res; // return k где  мы расходимся в бесконечность
+        }
+      }
+
+      res.x = length(z);
+      return res;
+
+    }
+    void main() {
+        vec2 pos = vec2(
+          (v_texCoord.x),// / (u_range.z - u_range.x),
+          (v_texCoord.y)// / (u_range.w - u_range.y)
+        );
+        vec4 k = getKmax(pos); 
+        gl_FragColor.r = (k.r - 2.0) / 2.0;
+        gl_FragColor.g = k.g / float(u_kmax);
+
+        gl_FragColor.a = 1.0;
+      }
     </script>
 
 
