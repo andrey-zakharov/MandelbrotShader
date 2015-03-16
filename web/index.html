@@ -1,20 +1,21 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Mandelbrot</title>
-    <style>
-    html, body, div, p {
-      margin: 0;
-      padding: 0;
-    }
-    body {
-      font-family: Monospace;
-      background-color: #f0f0f0;
-      overflow: hidden;
-    }
-    </style>
+<head>
+<title>Mandelbrot</title>
+<style>
+html,body,div,p {
+  margin: 0;
+  padding: 0;
+}
 
-  <script id = "shader-vx" type="x-shader/x-vertex">
+body {
+  font-family: Monospace;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+</style>
+
+<script id="shader-vx" type="x-shader/x-vertex">
 
 precision mediump  float;
 
@@ -28,7 +29,7 @@ precision mediump  float;
         gl_Position = vec4(a_position, 0.0, 1.0);
     }
 </script>
-    <script id = "shader-fx" type="x-shader/x-fragment">
+<script id="shader-fx" type="x-shader/x-fragment">
 
             precision mediump  float;
 
@@ -87,10 +88,10 @@ precision mediump  float;
     </script>
 
 
-  </head>
-  <body>
+</head>
+<body>
   <div id='status'>...</div>
-    <script type="application/dart" src="main.dart"></script>
-    <script type="text/javascript" src="packages/browser/dart.js"></script>
-  </body>
+  <script type="application/dart" src="main.dart"></script>
+  <script type="text/javascript" src="packages/browser/dart.js"></script>
+</body>
 </html>

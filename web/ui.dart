@@ -3,6 +3,8 @@ part of mandel;
 Point mouseSt;
 final num minSelection = 10.0;
 
+int animSteps = 0;
+
 initUI() {
   window.onResize.listen(onResize);
   canvas.onMouseDown.listen((e) {
@@ -28,9 +30,25 @@ initUI() {
 
     }
   });
+  
+  canvas.onMouseWheel.listen((WheelEvent e) {
+    if( e.wheelDeltaX < 0 ) { //zoom in
+      onZoomIn(e);
+    }
+    
+    if( e.wheelDeltaX > 0 ) { //zoom out
+      
+    }
+  });
 }
 
+onZoomIn(MouseEvent e) {
+  e.client;
+}
 
 uidraw() {
-
+  if( animSteps > 0 ) {
+    window.requestAnimationFrame((_)=>draw);
+    animSteps--;
+  }
 }

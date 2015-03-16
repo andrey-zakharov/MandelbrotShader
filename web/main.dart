@@ -15,26 +15,32 @@ final int dims = 2;
 
 num planeSize = 1.0; // around 0,0
 
-final Float32List vertices = new Float32List.fromList( [
-      -planeSize, -planeSize,
-       planeSize,  planeSize,
-      -planeSize,  planeSize,
+final Float32List vertices = new Float32List.fromList([
+  -planeSize, -planeSize, 
+  planeSize, planeSize, 
+  -planeSize, planeSize, 
+  
+  -planeSize, -planeSize, 
+  planeSize, planeSize, 
+  planeSize, -planeSize
+]);
 
-      -planeSize, -planeSize,
-       planeSize,  planeSize,
-       planeSize, -planeSize
-] );
+Rectangle range = new Rectangle(-2.0, -1.5, 3, 3);
+num x1 = -2.0,
+    y1 = -1.5,
+    x2 = 1.0,
+    y2 = 1.5;
 
-num x1 = -2.0, y1 = -1.5, x2 = 1.0, y2 = 1.5;
-
-Float32List range = new Float32List.fromList( [
-                                               x1, y1,
-                                               x2, y2,
-                                               x1, y2,
-                                               x1, y1,
-                                               x2, y2,
-                                               x2, y1
-                                       ] );
+Float32List rangeList = new Float32List.fromList([
+    range.left, range.bottom,
+    range.right, range.top,
+    range.left, range.top,
+    
+    range.left, range.bottom,
+    range.right, range.top,
+    range.right, range.bottom
+            
+]);
 
 
 Buffer vertexBuffer;
@@ -54,7 +60,7 @@ main() {
   draw();
 }
 
-status( String message ) {
+status(String message) {
   var status = querySelector('#status');
   status.innerHtml = '<p>${message}</p>';
 }
@@ -71,7 +77,7 @@ initBuffers(Program program) {
 
   rangeBuffer = gl.createBuffer();
   gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
-  gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, range, RenderingContext.STATIC_DRAW);
+  gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, rangeList, RenderingContext.STATIC_DRAW);
   gl.enableVertexAttribArray(aRange);
   gl.vertexAttribPointer(aRange, dims, RenderingContext.FLOAT, false, 0, 0);
 }
@@ -94,7 +100,7 @@ initGeom(Program program) {
   UniformLocation kmax = gl.getUniformLocation(program, "u_kmax");
   UniformLocation u_range = gl.getUniformLocation(program, "u_range");
 // Как и для очистки холста он задаётся в формате RGBA
-  gl.uniform2f(viewport,  canvas.width, canvas.height);
+  gl.uniform2f(viewport, canvas.width, canvas.height);
   gl.uniform4f(u_range, x1, y1, x2, y2);
   gl.uniform2fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
   gl.uniform1i(kmax, 20);
@@ -103,7 +109,7 @@ initGeom(Program program) {
 initShaders() {
 
   Shader vs = gl.createShader(RenderingContext.VERTEX_SHADER);
-  gl.shaderSource(vs,querySelector("#shader-vx").text );
+  gl.shaderSource(vs, querySelector("#shader-vx").text);
   gl.compileShader(vs);
   if (!gl.getShaderParameter(vs, RenderingContext.COMPILE_STATUS)) {
     print(gl.getShaderInfoLog(vs));
@@ -158,9 +164,9 @@ initTexture() {
   fractalTexture = gl.createTexture();
 
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 }
 onResize(e) {
