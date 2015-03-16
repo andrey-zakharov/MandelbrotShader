@@ -2,9 +2,14 @@ library mandel;
 import 'dart:html';
 import 'dart:web_gl';
 import 'dart:typed_data';
+import 'dart:math';
+import 'package:stats/stats.dart';
+
+part 'ui.dart';
 
 Element canvas;
 var gl;
+var fractalTexture;
 
 final int dims = 2;
 
@@ -25,7 +30,7 @@ num x1 = -2.0, y1 = -1.5, x2 = 1.0, y2 = 1.5;
 Float32List range = new Float32List.fromList( [
                                                x1, y1,
                                                x2, y2,
-                                               x1, y2, 
+                                               x1, y2,
                                                x1, y1,
                                                x2, y2,
                                                x2, y1
@@ -35,10 +40,17 @@ Float32List range = new Float32List.fromList( [
 Buffer vertexBuffer;
 Buffer rangeBuffer;
 
+Stats stats = new Stats();
 
 main() {
   initGL();
   initGeom(initShaders());
+  initUI();
+
+  document.body.children.add(stats.container);
+  stats.container.style.position = 'absolute';
+  stats.container.style.top = '0px';
+
   draw();
 }
 
@@ -50,13 +62,13 @@ status( String message ) {
 initBuffers(Program program) {
   int aPosition = gl.getAttribLocation(program, "a_position");
   int aRange = gl.getAttribLocation(program, "a_range");
-  
+
   vertexBuffer = gl.createBuffer();
   gl.bindBuffer(RenderingContext.ARRAY_BUFFER, vertexBuffer);
   gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, vertices, RenderingContext.STATIC_DRAW);
   gl.enableVertexAttribArray(aPosition);
   gl.vertexAttribPointer(aPosition, dims, RenderingContext.FLOAT, false, 0, 0);
-  
+
   rangeBuffer = gl.createBuffer();
   gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
   gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, range, RenderingContext.STATIC_DRAW);
@@ -69,7 +81,7 @@ initGeom(Program program) {
   // Устанавливаем позицию, которая будет передана в вершинный шейдер
 
   initBuffers(program);
-                                
+
 
 
 //Очищаем холст заливая его новым цветом(RedGreenBlueAlpha)
@@ -129,8 +141,8 @@ initGL() {
   canvas = new Element.tag('canvas');
   //document.body.appendChild( container );
   document.body.children.add(canvas);
-  canvas.width = canvas.parent.clientWidth;
-  canvas.height = window.screen.height;
+  canvas.width = document.body.clientWidth;
+  canvas.height = window.innerHeight;
   gl = canvas.getContext("webgl");
   if (gl == null) gl = canvas.getContext("experimental-webgl");
   if (gl == null) {
@@ -142,10 +154,38 @@ initGL() {
   status('');
 }
 
-initScene() {
+initTexture() {
+  fractalTexture = gl.createTexture();
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
 }
+onResize(e) {
+  canvas.width = document.body.clientWidth;
+  canvas.height = window.innerHeight;
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  draw();
+}
+
 
 draw() {
+  stats.begin();
   gl.drawArrays(RenderingContext.TRIANGLES, 0, vertices.length ~/ dims);
+  uidraw();
+  stats.end();
+}
+
+calcFractal() {
+
+  //webgl.getParameter(webgl.MAX_TEXTURE_SIZE)
+  //gl.bindTexture(gl.TEXTURE_2D, fractalTexture);
+  stats.begin();
+  gl.drawArrays(RenderingContext.TRIANGLES, 0, vertices.length ~/ dims);
+  var pixels = new Uint8Array(width * height * 4);
+  gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+  stats.end();
 }

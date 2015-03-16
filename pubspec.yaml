@@ -3,5 +3,7 @@ description: Try to calc on GPU
 dependencies:
   browser: any
   collection: any
+  stats:
+    git: https://github.com/Dartist/stats.dart.git
 dev_dependencies:
   unittest: any

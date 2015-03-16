@@ -15,9 +15,9 @@
     </style>
 
   <script id = "shader-vx" type="x-shader/x-vertex">
-#ifdef GL_ES
-precision highp float;
-#endif
+
+precision mediump  float;
+
     attribute vec2 a_position;
     attribute vec2 a_range;
     varying vec2 v_texCoord;
@@ -29,9 +29,9 @@ precision highp float;
     }
 </script>
     <script id = "shader-fx" type="x-shader/x-fragment">
-      #ifdef GL_ES
-            precision highp float;
-      #endif
+
+            precision mediump  float;
+
 
     uniform vec4 u_color;
     uniform vec2 u_viewport;
@@ -56,7 +56,7 @@ precision highp float;
 
     vec4 getKmax( vec2 c ) {
       vec4 res = vec4(0.0, 0.0, 0.0, 0.0);
-      
+
       vec2 z = c;
 
       for (int k = 0; k < 100; k++ ) {
@@ -78,7 +78,7 @@ precision highp float;
           (v_texCoord.x),// / (u_range.z - u_range.x),
           (v_texCoord.y)// / (u_range.w - u_range.y)
         );
-        vec4 k = getKmax(pos); 
+        vec4 k = getKmax(pos);
         gl_FragColor.r = (k.r - 2.0) / 2.0;
         gl_FragColor.g = k.g / float(u_kmax);
 
