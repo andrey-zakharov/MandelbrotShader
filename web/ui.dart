@@ -64,7 +64,14 @@ initUI() {
 }
 
 onDrag(CustomEvent e) {
-  //Tween.to()
+  //print("Jere: ${e}");
+  var relative = e.detail.current - e.detail.previous;
+  print(relative);
+  
+  new Tween.to( field, Field.TWEEN_DRAG, 0.5)
+    ..targetRelative = [relative.x, relative.y]
+    ..start(animManager);
+  update();
 }
 
 onZoomIn(MouseEvent e) {

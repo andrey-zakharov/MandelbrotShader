@@ -28,7 +28,11 @@ main() {
   document.body.children.add(stats.container);
   stats.container.style.position = 'absolute';
   stats.container.style.top = '0px';
+  update();
+  
+}
 
+update() {
   window.animationFrame.then(draw);
 }
 
@@ -64,7 +68,7 @@ onResize(e) {
   canvas.width = document.body.clientWidth;
   canvas.height = window.innerHeight;
   gl.viewport(0, 0, canvas.width, canvas.height);
-  window.animationFrame.then(draw);
+  update();
 }
 
 num lastUpdate = 0;

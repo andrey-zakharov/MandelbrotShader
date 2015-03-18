@@ -2,7 +2,7 @@ part of mandel;
 
 
 /// entire field of view
-class Field {
+class Field implements Tweenable {
   var gl;
   Program program; // shaders
   
@@ -143,4 +143,27 @@ class Field {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
   
+
+  @override
+  int getTweenableValues(Tween tween, int tweenType, List<num> returnValues) {
+    switch ( tweenType ) {
+      case TWEEN_DRAG:
+        returnValues[0] = this.range.left;
+        returnValues[1] = this.range.top;
+        return 2;
+    }
+    
+    return 0;
+  }
+
+  @override
+  void setTweenableValues(Tween tween, int tweenType, List<num> newValues) {
+    switch (tweenType) {
+      case TWEEN_DRAG:
+        setRange( new Rectangle(newValues[0], newValues[1], range.width, range.height ));
+    }
+  }
+  
+  static const int TWEEN_DRAG = 1;
+  static const int TWEEN_DRAG_Y = 2;
 }
