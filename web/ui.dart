@@ -17,12 +17,12 @@ class Controls {
     _el.onMouseWheel.listen((WheelEvent e) {
       print( e.wheelDeltaY );
 
-      if( e.wheelDeltaX < 0 ) { //zoom in
-        onZoomIn(e);
+      if( e.wheelDeltaY < 0 ) { //zoom in
+        onZoomOut(e);
       }
 
-      if( e.wheelDeltaX > 0 ) { //zoom out
-
+      if( e.wheelDeltaY > 0 ) { //zoom out
+        onZoomIn(e);
       }
     });
   }
@@ -60,6 +60,7 @@ class DragData {
 initUI() {
   window.onResize.listen(onResize);
   animManager = new TweenManager();
+  Tween.combinedAttributesLimit = 4;
   controls = new Controls(canvas);
   controls.onDrag.forElement(canvas).listen(onDrag);
   //controls.onDraw
@@ -79,8 +80,51 @@ onDrag(CustomEvent e) {
 
 }
 
-onZoomIn(MouseEvent e) {
-  e.client;
+Tween zoomer = null;
+
+onZoomIn(WheelEvent e) {
+  zoomTo( field.scaleToRange(e.client), 1.62 );
+  
+}
+
+onZoomOut(WheelEvent e) {
+  zoomTo( field.scaleToRange(e.client), 1/1.62 );
+}
+
+zoomTo( Point c, num zoom ) {
+  Rectangle zoomOrig = field.range;
+  if( zoomer != null ) {
+    zoomOrig = new Rectangle( 
+        zoomer.targetValues[0], zoomer.targetValues[1],
+        zoomer.targetValues[2], zoomer.targetValues[3]
+    );
+  }
+  
+
+  // get new zoom range as golden mean
+  num w = zoomOrig.width / zoom;
+  num h = zoomOrig.height / zoom;
+  num x = c.x - w/2;
+  num y = c.y - h/2;
+  print( [ x, y, w, h ] );
+  
+  if( zoomer == null ) {
+  
+    zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 20)
+      ..targetValues = [ x, y, w, h ]
+      ..start(animManager)
+      ..callback = resetZoom;
+  
+    update();// start anim
+    
+  } else {
+    zoomer.targetValues = [ x, y, w, h ];
+    zoomer.duration = 20;
+  }
+}
+
+void resetZoom(_, __) {
+  zoomer = null;
 }
 
 uidraw() {

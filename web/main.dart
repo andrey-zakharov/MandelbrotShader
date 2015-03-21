@@ -20,6 +20,7 @@ Stats stats = new Stats();
 
 main() {
   initGL();
+  if(gl == null) return;
   
   field = new Field(gl);
   

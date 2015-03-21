@@ -151,6 +151,12 @@ class Field implements Tweenable {
         returnValues[0] = this.range.left;
         returnValues[1] = this.range.top;
         return 2;
+      case TWEEN_ZOOM:
+        returnValues[0] = this.range.left;
+        returnValues[1] = this.range.top;
+        returnValues[2] = this.range.width;
+        returnValues[3] = this.range.height;
+        return 4;
     }
 
     return 0;
@@ -161,6 +167,10 @@ class Field implements Tweenable {
     switch (tweenType) {
       case TWEEN_DRAG:
         moveViewport(newValues[0], newValues[1]);
+        break;
+      case TWEEN_ZOOM:
+        setRange( new Rectangle( newValues[0], newValues[1], newValues[2], newValues[3] ) );
+        break;
     }
   }
 
@@ -176,5 +186,5 @@ class Field implements Tweenable {
   }
 
   static const int TWEEN_DRAG = 1;
-  static const int TWEEN_DRAG_Y = 2;
+  static const int TWEEN_ZOOM = 2;
 }
