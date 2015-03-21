@@ -5,20 +5,20 @@ part of mandel;
 class Field implements Tweenable {
   var gl;
   Program program; // shaders
-  
+
   Field(this.gl) {
     program = initShaders();
     initBuffers();
     initUniforms();
   }
-  
+
   draw() {
 
     gl.clearColor(0.0, 0.0, 0.0, 1);
     gl.clear(RenderingContext.COLOR_BUFFER_BIT);
     gl.drawArrays(RenderingContext.TRIANGLES, 0, vertices.length ~/ _dims);
   }
-  
+
   var _fractalTexture;
 
   final int _dims = 2;
@@ -26,23 +26,23 @@ class Field implements Tweenable {
   static num planeSize = 1.0; // around 0,0
 
   final Float32List vertices = new Float32List.fromList([
-    -planeSize, -planeSize, 
-    planeSize, planeSize, 
-    -planeSize, planeSize, 
-    
-    -planeSize, -planeSize, 
-    planeSize, planeSize, 
+    -planeSize, -planeSize,
+    planeSize, planeSize,
+    -planeSize, planeSize,
+
+    -planeSize, -planeSize,
+    planeSize, planeSize,
     planeSize, -planeSize
   ]);
-  
+
   Rectangle range = new Rectangle(-2.0, -1.5, 3, 3);
-  
+
   Buffer vertexBuffer;
   Buffer rangeBuffer;
 
 
   initShaders() {
-  
+
     Shader vs = gl.createShader(RenderingContext.VERTEX_SHADER);
     gl.shaderSource(vs, querySelector("#shader-vx").text);
     gl.compileShader(vs);
@@ -51,7 +51,7 @@ class Field implements Tweenable {
       status(gl.getShaderInfoLog(vs));
       throw new Exception(gl.getShaderInfoLog(vs));
     }
-  
+
     Shader fs = gl.createShader(RenderingContext.FRAGMENT_SHADER);
     //gl.shaderSource(fs, fsSource);
     gl.shaderSource(fs, querySelector("#shader-fx").text);
@@ -61,7 +61,7 @@ class Field implements Tweenable {
       status(gl.getShaderInfoLog(fs));
       throw new Exception(gl.getShaderInfoLog(fs));
     }
-  
+
   // Загружаем шейдеры в GPU
     Program p = gl.createProgram();
     gl.attachShader(p, vs);
@@ -73,10 +73,10 @@ class Field implements Tweenable {
       status(gl.getShaderInfoLog(p));
       throw new Exception(gl.getShaderInfoLog(p));
     }
-  
+
     return p;
   }
-  
+
   initUniforms() {
 
 
@@ -97,42 +97,42 @@ class Field implements Tweenable {
 
     int aPosition = gl.getAttribLocation(program, "a_position");
     int aRange = gl.getAttribLocation(program, "a_range");
-  
+
     vertexBuffer = gl.createBuffer();
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, vertexBuffer);
     gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, vertices, RenderingContext.STATIC_DRAW);
     gl.enableVertexAttribArray(aPosition);
     gl.vertexAttribPointer(aPosition, _dims, RenderingContext.FLOAT, false, 0, 0);
-  
+
     rangeBuffer = gl.createBuffer();
     loadRangeBuffer();
-    
+
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
     gl.enableVertexAttribArray(aRange);
     gl.vertexAttribPointer(aRange, _dims, RenderingContext.FLOAT, false, 0, 0);
   }
-  
+
   loadRangeBuffer() {
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
     Float32List rangeList = new Float32List.fromList([
         range.left, range.bottom,
         range.right, range.top,
         range.left, range.top,
-        
+
         range.left, range.bottom,
         range.right, range.top,
         range.right, range.bottom
-                
+
     ]);
     gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, rangeList, RenderingContext.STATIC_DRAW);
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, null);
   }
-  
+
   setRange(Rectangle newRange) {
     this.range = newRange;
     loadRangeBuffer();
   }
-  
+
   // unused
   initTexture() {
 
@@ -142,7 +142,7 @@ class Field implements Tweenable {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
   }
-  
+
 
   @override
   int getTweenableValues(Tween tween, int tweenType, List<num> returnValues) {
@@ -152,7 +152,7 @@ class Field implements Tweenable {
         returnValues[1] = this.range.top;
         return 2;
     }
-    
+
     return 0;
   }
 
@@ -160,10 +160,21 @@ class Field implements Tweenable {
   void setTweenableValues(Tween tween, int tweenType, List<num> newValues) {
     switch (tweenType) {
       case TWEEN_DRAG:
-        setRange( new Rectangle(newValues[0], newValues[1], range.width, range.height ));
+        moveViewport(newValues[0], newValues[1]);
     }
   }
-  
+
+  Point scaleToRange( Point drag ) {
+    return new Point (
+      drag.x * range.width / canvas.clientWidth,
+      drag.y * range.height / canvas.clientHeight
+    );
+  }
+
+  void moveViewport( num x, num y ) {
+    setRange( new Rectangle(x, y, range.width, range.height ));
+  }
+
   static const int TWEEN_DRAG = 1;
   static const int TWEEN_DRAG_Y = 2;
 }
