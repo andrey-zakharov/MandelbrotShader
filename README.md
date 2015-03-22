@@ -1,4 +1,4 @@
 # MandelbrotShader
 MandelbrotShader
 
-http://andrey-zakharov.github.io/MandelbrotShade
+http://andrey-zakharov.github.io/MandelbrotShader
