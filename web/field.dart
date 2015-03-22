@@ -175,9 +175,18 @@ class Field implements Tweenable {
   }
 
   Point scaleToRange( Point drag ) {
+    // move zero to half point, then scale to current range
     return new Point (
       drag.x * range.width / canvas.clientWidth,
       drag.y * range.height / canvas.clientHeight
+    );
+  }
+  
+  /// p from canvas
+  Point mapToRange( Point p ) {
+    return new Point (
+      p.x * range.width / canvas.clientWidth + range.left,
+      p.y * range.height / canvas.clientHeight + range.top
     );
   }
 

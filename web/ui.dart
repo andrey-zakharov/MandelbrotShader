@@ -37,6 +37,8 @@ class Controls {
         _el.dispatchEvent(new CustomEvent('drag', detail: new DragData(mouseSt, e.client)));
         mouseSt = e.client;
       }
+      
+      status("${field.range} - ${e.client}  /  ${field.scaleToRange(e.client)}");
   }
 
   onMouseUp(MouseEvent e) {
@@ -72,7 +74,7 @@ onDrag(CustomEvent e) {
 
   //print("${relative} ${field.scaleToRange(relative)}");
   relative = field.scaleToRange(relative);
-  field.moveViewport(field.range.left-relative.x, field.range.top-relative.y);
+  field.moveViewport(field.range.left - relative.x, field.range.top - relative.y);
   /*new Tween.to( field, Field.TWEEN_DRAG, 0.5)
     ..targetRelative = [-relative.x, -relative.y]
     ..start(animManager);*/
@@ -83,12 +85,12 @@ onDrag(CustomEvent e) {
 Tween zoomer = null;
 
 onZoomIn(WheelEvent e) {
-  zoomTo( field.scaleToRange(e.client), 1.62 );
+  zoomTo( field.mapToRange(e.client), 1.62 );
   
 }
 
 onZoomOut(WheelEvent e) {
-  zoomTo( field.scaleToRange(e.client), 1/1.62 );
+  zoomTo( field.mapToRange(e.client), 1/1.62 );
 }
 
 zoomTo( Point c, num zoom ) {
@@ -110,7 +112,7 @@ zoomTo( Point c, num zoom ) {
   
   if( zoomer == null ) {
   
-    zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 20)
+    zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 20000)
       ..targetValues = [ x, y, w, h ]
       ..start(animManager)
       ..callback = resetZoom;
@@ -119,7 +121,7 @@ zoomTo( Point c, num zoom ) {
     
   } else {
     zoomer.targetValues = [ x, y, w, h ];
-    zoomer.duration = 20;
+    zoomer.duration = 20000;
   }
 }
 

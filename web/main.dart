@@ -28,7 +28,7 @@ main() {
 
   document.body.children.add(stats.container);
   stats.container.style.position = 'absolute';
-  stats.container.style.top = '0px';
+  stats.container.style.bottom = '0px';
   update();
   
 }
