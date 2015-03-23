@@ -15,13 +15,13 @@ class Controls {
     _el.onMouseUp.listen(onMouseUp);
 
     _el.onMouseWheel.listen((WheelEvent e) {
-      print( e.wheelDeltaY );
+      print( e.deltaY );
 
-      if( e.wheelDeltaY < 0 ) { //zoom in
+      if( e.deltaY < 0 ) { //zoom in
         onZoomOut(e);
       }
 
-      if( e.wheelDeltaY > 0 ) { //zoom out
+      if( e.deltaY > 0 ) { //zoom out
         onZoomIn(e);
       }
     });
@@ -63,6 +63,7 @@ initUI() {
   window.onResize.listen(onResize);
   animManager = new TweenManager();
   Tween.combinedAttributesLimit = 4;
+  animManager.resume();
   controls = new Controls(canvas);
   controls.onDrag.forElement(canvas).listen(onDrag);
   //controls.onDraw
@@ -108,10 +109,11 @@ zoomTo( Point c, num zoom ) {
   num h = zoomOrig.height / zoom;
   num x = c.x - w/2;
   num y = c.y - h/2;
-  print( [ x, y, w, h ] );
+  //print( [ x, y, w, h ] );
   
   if( zoomer == null ) {
   
+    
     zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 20000)
       ..targetValues = [ x, y, w, h ]
       ..start(animManager)

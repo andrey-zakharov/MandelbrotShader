@@ -9,7 +9,7 @@ import 'package:tweenengine/tweenengine.dart';
 part 'ui.dart';
 part 'field.dart';
 
-Element canvas;
+CanvasElement canvas;
 Controls controls;
 TweenManager animManager;
 Field field;
