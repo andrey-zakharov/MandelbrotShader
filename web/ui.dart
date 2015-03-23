@@ -12,6 +12,7 @@ class Controls {
 
     _el.onMouseDown.listen(onMouseDown);
     _el.onMouseMove.listen(onMouseMove);
+    _el.onDoubleClick.listen(onZoomIn);
     _el.onMouseUp.listen(onMouseUp);
 
     _el.onMouseWheel.listen((WheelEvent e) {
@@ -85,12 +86,12 @@ onDrag(CustomEvent e) {
 
 Tween zoomer = null;
 
-onZoomIn(WheelEvent e) {
+onZoomIn(MouseEvent e) {
   zoomTo( field.mapToRange(e.client), 1.62 );
   
 }
 
-onZoomOut(WheelEvent e) {
+onZoomOut(MouseEvent e) {
   zoomTo( field.mapToRange(e.client), 1/1.62 );
 }
 
@@ -114,8 +115,9 @@ zoomTo( Point c, num zoom ) {
   if( zoomer == null ) {
   
     
-    zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 20000)
+    zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 5)
       ..targetValues = [ x, y, w, h ]
+      ..easing = TweenEquations.easeOutExpo
       ..start(animManager)
       ..callback = resetZoom;
   
@@ -123,7 +125,7 @@ zoomTo( Point c, num zoom ) {
     
   } else {
     zoomer.targetValues = [ x, y, w, h ];
-    zoomer.duration = 20000;
+    zoomer.duration = 5;
   }
 }
 

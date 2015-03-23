@@ -169,7 +169,7 @@ class Field implements Tweenable {
         moveViewport(newValues[0], newValues[1]);
         break;
       case TWEEN_ZOOM:
-        print("anim zoom ${newValues[0]}");
+        //print("anim zoom ${newValues[0]}");
         setRange( new Rectangle( newValues[0], newValues[1], newValues[2], newValues[3] ) );
         break;
     }

@@ -34,8 +34,31 @@ main() {
 }
 
 update() {
+  //lastUpdate = 0;
   window.animationFrame.then(draw);
 }
+
+num lastUpdate = 0.0;
+
+draw(num delta) {
+  
+  stats.begin();
+  num deltaTime = (delta - lastUpdate) / 1000;
+  print(deltaTime);
+  lastUpdate = delta;
+  animManager.update(deltaTime);
+  
+  field.draw();
+  
+  stats.end();
+  if( animManager.length > 0 ) {
+    window.requestAnimationFrame(draw);
+    //animSteps--;
+  }
+  
+  
+}
+
 
 status(String message) {
   var status = querySelector('#status');
@@ -72,32 +95,4 @@ onResize(e) {
   update();
 }
 
-num lastUpdate = 0;
 
-draw(num delta) {
-  stats.begin();
-  num deltaTime = (delta - lastUpdate) / 1000;
-  lastUpdate = delta;
-  animManager.update(delta);
-  
-  field.draw();
-  
-  if( animManager.length > 0 ) {
-    window.requestAnimationFrame(draw);
-    //animSteps--;
-  }
-  
-  stats.end();
-}
-
-calcFractal() {
-
-  //webgl.getParameter(webgl.MAX_TEXTURE_SIZE)
-  //gl.bindTexture(gl.TEXTURE_2D, fractalTexture);
-  stats.begin();
-  gl.drawArrays(RenderingContext.TRIANGLES, 0, vertices.length ~/ dims);
-  var pixels = new Uint8Array(width * height * 4);
-  gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-
-  stats.end();
-}
