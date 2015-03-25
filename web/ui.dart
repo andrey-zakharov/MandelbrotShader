@@ -16,13 +16,13 @@ class Controls {
     _el.onMouseUp.listen(onMouseUp);
 
     _el.onMouseWheel.listen((WheelEvent e) {
-      print( e.deltaY );
+      //print( e.deltaY );
 
-      if( e.deltaY < 0 ) { //zoom in
+      if( e.deltaY > 0 ) { //zoom in
         onZoomOut(e);
       }
 
-      if( e.deltaY > 0 ) { //zoom out
+      if( e.deltaY < 0 ) { //zoom out
         onZoomIn(e);
       }
     });

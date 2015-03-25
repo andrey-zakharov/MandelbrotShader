@@ -6,8 +6,8 @@ class Field implements Tweenable {
   var gl;
   Program program; // shaders
 
-  Field(this.gl) {
-    program = initShaders();
+  Field(this.gl, String vertexShader, String fragmentShader) {
+    program = initProgram(vertexShader, fragmentShader);
     initBuffers();
     initUniforms();
   }
@@ -41,10 +41,10 @@ class Field implements Tweenable {
   Buffer rangeBuffer;
 
 
-  initShaders() {
+  initProgram(String vshader, String fshader) {
 
     Shader vs = gl.createShader(RenderingContext.VERTEX_SHADER);
-    gl.shaderSource(vs, querySelector("#shader-vx").text);
+    gl.shaderSource(vs, vshader);
     gl.compileShader(vs);
     if (!gl.getShaderParameter(vs, RenderingContext.COMPILE_STATUS)) {
       print(gl.getShaderInfoLog(vs));
@@ -54,7 +54,7 @@ class Field implements Tweenable {
 
     Shader fs = gl.createShader(RenderingContext.FRAGMENT_SHADER);
     //gl.shaderSource(fs, fsSource);
-    gl.shaderSource(fs, querySelector("#shader-fx").text);
+    gl.shaderSource(fs, fshader);
     gl.compileShader(fs);
     if (!gl.getShaderParameter(fs, RenderingContext.COMPILE_STATUS)) {
       print(gl.getShaderInfoLog(fs));

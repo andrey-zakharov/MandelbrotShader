@@ -9,6 +9,9 @@ import 'package:tweenengine/tweenengine.dart';
 part 'ui.dart';
 part 'field.dart';
 
+final String VS_SHADER_FILE = 'mandel.vs.glsl';
+final String FS_SHADER_FILE = 'mandel.fs.glsl';
+
 CanvasElement canvas;
 Controls controls;
 TweenManager animManager;
@@ -22,15 +25,26 @@ main() {
   initGL();
   if(gl == null) return;
   
-  field = new Field(gl);
-  
-  initUI();
+  //
+  //new FileReader(VS_SHADER_FILE).readAsText(blob)
+  //HttpRequest.getString(VS_SHADER_FILE).then(print);
 
-  document.body.children.add(stats.container);
-  stats.container.style.position = 'absolute';
-  stats.container.style.bottom = '0px';
-  update();
+  HttpRequest.getString(VS_SHADER_FILE).then((String vshader) =>
+    HttpRequest.getString(FS_SHADER_FILE).then((String fshader) {
   
+      field = new Field(gl, vshader, fshader);
+      initUI();
+  
+      document.body.children.add(stats.container);
+      stats.container.style.position = 'absolute';
+      stats.container.style.bottom = '0px';
+      update();
+  
+    }));
+ 
+      
+      //querySelector("#shader-vx").text, querySelector("#shader-fx").text);
+  print("loading...");
 }
 
 update() {
@@ -44,7 +58,7 @@ draw(num delta) {
   
   stats.begin();
   num deltaTime = (delta - lastUpdate) / 1000;
-  print(deltaTime);
+  //print(deltaTime);
   lastUpdate = delta;
   animManager.update(deltaTime);
   
