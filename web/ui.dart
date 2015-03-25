@@ -76,8 +76,13 @@ onDrag(CustomEvent e) {
 
   //print("${relative} ${field.scaleToRange(relative)}");
   relative = field.scaleToRange(relative);
+  
+  if( zoomer != null ) {
+    zoomer.kill();
+  }
+  
   field.moveViewport(field.range.left - relative.x, field.range.top - relative.y);
-  /*new Tween.to( field, Field.TWEEN_DRAG, 0.5)
+  /*zoomer = new Tween.to( field, Field.TWEEN_DRAG, 1)
     ..targetRelative = [-relative.x, -relative.y]
     ..start(animManager);*/
   update();
@@ -112,21 +117,18 @@ zoomTo( Point c, num zoom ) {
   num y = c.y - h/2;
   //print( [ x, y, w, h ] );
   
-  if( zoomer == null ) {
-  
-    
-    zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 5)
-      ..targetValues = [ x, y, w, h ]
-      ..easing = TweenEquations.easeOutExpo
-      ..start(animManager)
-      ..callback = resetZoom;
-  
-    update();// start anim
-    
-  } else {
-    zoomer.targetValues = [ x, y, w, h ];
-    zoomer.duration = 5;
+  if( zoomer != null ) {
+    zoomer.kill();
   }
+  
+  zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 5)
+    ..targetValues = [ x, y, w, h ]
+    ..easing = TweenEquations.easeOutExpo
+    ..start(animManager)
+    ..callback = resetZoom;
+
+  update();// start anim
+  
 }
 
 void resetZoom(_, __) {
