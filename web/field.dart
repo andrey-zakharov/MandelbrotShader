@@ -11,6 +11,8 @@ class Field implements Tweenable {
     initBuffers();
     initUniforms();
   }
+  
+  void reset() { setRange(new Rectangle(-2.0, -1.5, 3, 3)); update(); }
 
   draw() {
 
