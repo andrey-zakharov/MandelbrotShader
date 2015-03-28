@@ -27,7 +27,7 @@ vec4 getKmax( in vec2 c ) {
 
   vec2 z = c;
 
-  for (int k = 0; k < 100; k++ ) {
+  for (int k = 0; k < 500; k++ ) {
     z = f( z, c );
 
     if ( length(z) >= 2.0 ) {
