@@ -20,9 +20,9 @@ initUI() {
   animManager.resume();
   controls = new Controls(canvas);
   
-  gui = new GUI();
+  /*gui = new GUI();
   gui.add(field, "reset");
-  gui.add(controls, "animate" );
+  gui.add(controls, "animate" );*/
   //
 }
 
@@ -32,7 +32,7 @@ class Controls {
   final num minSelection = 1.0;
   Point mouseSt;
   Element _el;
-  bool _animate = true;
+  bool _animate = false;
   bool get animate => _animate;
   void set animate(bool v) {
     if ( !v && zoomer != null ) {
@@ -49,7 +49,7 @@ class Controls {
     _el.onMouseMove.listen(onMouseMove);
     _el.onDoubleClick.listen(onZoomIn);
     _el.onMouseUp.listen(onMouseUp);
-    onDragEvent.forElement(canvas).listen(onDrag);
+    onDragEvent.forElement(canvas).listen(onCanvasDrag);
 
     _el.onMouseWheel.listen((WheelEvent e) {
       //print( e.deltaY );
@@ -75,7 +75,7 @@ class Controls {
 
   onMouseMove(MouseEvent e) {
       if( mouseSt != null && mouseSt.squaredDistanceTo(e.client) >= minSelection ) {
-        _el.dispatchEvent(new CustomEvent('drag', detail: new DragData(mouseSt, e.client)));
+        _el.dispatchEvent(new CustomEvent('fielddrag', detail: new DragData(mouseSt, e.client)));
         mouseSt = e.client;
       }
       
@@ -91,11 +91,11 @@ class Controls {
     }
   }
 
-  EventStreamProvider<CustomEvent> onDragEvent = new EventStreamProvider('drag');
+  EventStreamProvider<CustomEvent> onDragEvent = new EventStreamProvider('fielddrag');
 
 
 
-  onDrag(CustomEvent e) {
+  onCanvasDrag(CustomEvent e) {
     //print("Jere: ${e}");
     Point relative = e.detail.current - e.detail.previous;
   

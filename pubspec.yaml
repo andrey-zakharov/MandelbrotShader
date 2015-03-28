@@ -3,7 +3,7 @@ description: Try to calc on GPU
 dependencies:
   browser: any
   collection: any
-  datgui: any
+#  datgui: any
   stats:
     git: https://github.com/Dartist/stats.dart.git
   tweenengine: any
