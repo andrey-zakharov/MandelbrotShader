@@ -5,6 +5,7 @@ part of mandel;
 class Field implements Tweenable {
   var gl;
   Program program; // shaders
+  int kmax = 250;
 
   Field(this.gl, String vertexShader, String fragmentShader) {
     program = initProgram(vertexShader, fragmentShader);
@@ -84,13 +85,13 @@ class Field implements Tweenable {
 
     UniformLocation uColor = gl.getUniformLocation(program, "u_color");
     UniformLocation viewport = gl.getUniformLocation(program, "u_viewport");
-    UniformLocation kmax = gl.getUniformLocation(program, "u_kmax");
+    UniformLocation u_kmax = gl.getUniformLocation(program, "u_kmax");
     UniformLocation u_range = gl.getUniformLocation(program, "u_range");
-// Как и для очистки холста он задаётся в формате RGBA
+
     gl.uniform2f(viewport, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.uniform4f(u_range, range.left, range.bottom, range.right, range.top);
     gl.uniform2fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
-    gl.uniform1i(kmax, 20);
+    gl.uniform1i(u_kmax, kmax);
   }
 
 
