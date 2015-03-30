@@ -10,8 +10,9 @@ import 'package:tweenengine/tweenengine.dart';
 part 'ui.dart';
 part 'field.dart';
 
-final String VS_SHADER_FILE = 'mandel.vs.glsl';
+final String VS_SHADER_FILE = 'plain.vs.glsl';
 final String FS_SHADER_FILE = 'mandel.fs.glsl';
+final String FS_JULIA_SHADER_FILE = 'julia.fs.glsl';
 
 CanvasElement canvas;
 Controls controls;
@@ -31,17 +32,19 @@ main() {
   //HttpRequest.getString(VS_SHADER_FILE).then(print);
 
   HttpRequest.getString(VS_SHADER_FILE).then((String vshader) =>
+      HttpRequest.getString(FS_JULIA_SHADER_FILE).then((String julia_fshader) =>
     HttpRequest.getString(FS_SHADER_FILE).then((String fshader) {
   
-      field = new Field(gl, vshader, fshader);
-      initUI();
+      //field = new Field(gl, vshader, fshader);
+      field = new Field(gl, vshader, julia_fshader);
+      initUI(canvas);
   
       document.body.children.add(stats.container);
       stats.container.style.position = 'absolute';
       stats.container.style.bottom = '0px';
       update();
   
-    }));
+    })));
  
       
       //querySelector("#shader-vx").text, querySelector("#shader-fx").text);

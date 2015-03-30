@@ -11,7 +11,7 @@ class DragData {
 }
 
 
-initUI() {
+initUI(CanvasElement canvas) {
   
   
   window.onResize.listen(onResize);
