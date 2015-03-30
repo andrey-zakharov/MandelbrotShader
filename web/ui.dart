@@ -50,6 +50,7 @@ class Controls {
     _el.onDoubleClick.listen(onZoomIn);
     _el.onMouseUp.listen(onMouseUp);
     onDragEvent.forElement(canvas).listen(onCanvasDrag);
+    _el.onContextMenu.listen(onContext);
 
     _el.onMouseWheel.listen((WheelEvent e) {
       //print( e.deltaY );
@@ -65,11 +66,15 @@ class Controls {
   }
   
   updateStatus() {
-    status("Square: ${field.range.width * field.range.height}");
+    status("Square: ${field.range.width * field.range.height}, ${field.range}");
   }
 
   onMouseDown(MouseEvent e) {
       mouseSt = new Point(e.client.x, e.client.y);
+      if( e.button == 2 ) {
+        e.preventDefault();
+        
+      }
       //add to scene selection rect
   }
 
@@ -165,6 +170,12 @@ class Controls {
   
   void resetZoom(_, __) {
     zoomer = null;
+  }
+  
+  void onContext(MouseEvent e) {
+    e.preventDefault();
+    //print(e.client);
+    field.setJuliaConst(field.scaleToRange(e.client));
   }
 }
 

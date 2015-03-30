@@ -80,6 +80,10 @@ class Field implements Tweenable {
     return p;
   }
 
+  num R( Point c ) {
+    return (1.0 + sqrt( 1.0 + 4.0*c.magnitude) ) / 2.0;
+  }
+  
   initUniforms() {
 
 
@@ -89,14 +93,20 @@ class Field implements Tweenable {
     UniformLocation u_range = gl.getUniformLocation(program, "u_range");
     UniformLocation u_c = gl.getUniformLocation(program, "u_c");
     if( u_c != null ) {
-    // -0.8 + 0.156i
-      gl.uniform2f(u_c, -0.8, 0.156);
+      //var c = new Point( -0.74543, 0.11301 );
+      var c = new Point( -0.8, 0.156);
+      //gl.uniform2f(u_c, -0.8, 0.156);
+      //gl.uniform2f(u_c,  0.285,  0.01);
+     // gl.uniform2f(u_c,  -0.0085 , 0.71);
+      gl.uniform2f(u_c, c.x, c.y );
+      var r = R(c);
+      setRange( new Rectangle(-r, -r, 2*r, 2*r) );
     }
     
     gl.uniform2f(viewport, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.uniform4f(u_range, range.left, range.bottom, range.right, range.top);
     gl.uniform2fv(uColor, new Float32List.fromList([0.5, 0.9, 0.9, 1.0]));
-    gl.uniform1i(u_kmax, kmax);
+    if(u_kmax!=null) { gl.uniform1i(u_kmax, kmax); }
   }
 
 
@@ -205,4 +215,16 @@ class Field implements Tweenable {
 
   static const int TWEEN_DRAG = 1;
   static const int TWEEN_ZOOM = 2;
+  
+  void setJuliaConst(Point c) {
+    
+    UniformLocation u_c = gl.getUniformLocation(program, "u_c");
+    if( u_c != null ) {
+      print(c);
+      gl.uniform2f(u_c, c.x, c.y );
+      var r = R(c);
+      setRange( new Rectangle(-r, -r, 2*r, 2*r) );
+      update();
+    }
+  }
 }

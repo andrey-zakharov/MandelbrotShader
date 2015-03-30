@@ -6,9 +6,9 @@ uniform vec2 u_viewport;
 //uniform vec2 u_minrange;
 //uniform vec2 u_maxrange;
 uniform highp vec4 u_range; // xy - min, zw - max
-uniform lowp int u_kmax;
 uniform lowp vec2 u_c; 
 varying vec2 v_texCoord;
+#define KMAX 250
 
 vec2 mult(in vec2 a, in vec2 b) {
   return vec2(
@@ -18,7 +18,7 @@ vec2 mult(in vec2 a, in vec2 b) {
 }
 
 
-vec2 f( in vec2 z, in vec2 c ) {
+vec2 f( in vec2 z ) {
   vec2 newr = mult(z, z) + u_c;
   return newr;
 }
@@ -27,24 +27,25 @@ float R( in vec2 c ) {
   return (1.0 + sqrt( 1.0 + 4.0*length(c) )) / 2.0;
 }
 
-vec4 getKmax( in vec2 c ) {
-  vec4 res = vec4(0.01, 0.01, 0.01, 0.0);
+vec4 getKmax( in vec2 p ) {
+  vec4 res = vec4(0.0, 0.0, 0.01, 0.0);
 
-  vec2 z = c;
-  float r = R(c);
+  vec2 z = p;
+  float r = R(u_c);
 
-  for (int k = 0; k < 250; k++ ) {
-    z = f( z, c );
+  for(int i = 0; i < KMAX; i++) {
+    z = f( z );
 
-    if ( length(z) >= r ) {
-      res.x = length(z);
-      res.y = float(k);
+    if ( length(z) > r ) {
+      res.x = length(z) / r;
+      res.y = float(i);
       //res.z = R(c);
       return res;
     }
   }
 
-  res.x = length(z);
+  res.x = length(z) / r;
+  res.y = float(KMAX);
   return res;
 
 }
@@ -54,9 +55,19 @@ void main() {
       (v_texCoord.y)// / (u_range.w - u_range.y)
     );
     vec4 k = getKmax(pos);
-    gl_FragColor.r = (k.r - 2.0) / 2.0;
-    gl_FragColor.g = k.g / float(u_kmax);
-    gl_FragColor.b = 0.0;
     gl_FragColor.a = 1.0;
+
+//    if( k.y < float(u_kmax) ) { // out of set
+      float value = k.y / float(KMAX);
+      gl_FragColor.r = value/3.0;
+      gl_FragColor.g = 1.0-value;
+      gl_FragColor.b = k.x;
+
+/*  } else {
+      gl_FragColor.b = k.x;
+      gl_FragColor.g = k.g / float(u_kmax);
+      gl_FragColor.r = 0.0;
+    }*/
+    
 }
   
