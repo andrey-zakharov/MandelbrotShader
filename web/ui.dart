@@ -136,16 +136,24 @@ class Controls {
     //print("onMouseDown: ${e.button} ${buttons}");
   }
 
+  Point movement(ev) {
+      JsObject evnt = new JsObject.fromBrowserObject(ev);
+      if (evnt['webkitMovementX'] != null)
+        return ev.movement;
+      else
+        return new Point(evnt['mozMovementX'], evnt['mozMovementY']);
+  }
+  
   onMouseMove(MouseEvent e) {
       if( buttons & MOUSE_BTN_LEFT > 0 ) { //LEFT
         print(e.movement);
         view.canvas.dispatchEvent(
             new CustomEvent('fielddrag', 
-              detail: new DragData(e.movement, buttons, e)));
+              detail: new DragData(movement(e), buttons, e)));
       }
       
-      status("btn:${buttons} ${view.field.range} - ${e.layer}  /  ${view.field.scaleToRange(e.client)} ");
-      //updateStatus();
+      //status("btn:${buttons} ${view.field.range} - ${e.layer}  /  ${view.field.scaleToRange(e.client)} ");
+      updateStatus();
   }
 
   onMouseUp(MouseEvent e) {
