@@ -220,7 +220,6 @@ class Field implements Tweenable {
     
     UniformLocation u_c = gl.getUniformLocation(program, "u_c");
     if( u_c != null ) {
-      print(c);
       gl.uniform2f(u_c, c.x, c.y );
       var r = R(c);
       setRange( new Rectangle(-r, -r, 2*r, 2*r) );

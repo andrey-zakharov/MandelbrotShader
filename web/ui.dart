@@ -11,10 +11,10 @@ initUI() {
 }
 
 class DragData {
-  Point previous;
-  Point current;
   Point offset;
-  DragData(this.offset);
+  int buttons;
+  MouseEvent origin;
+  DragData(this.offset, this.buttons, this.origin);
 }
 
 class GlView {
@@ -22,7 +22,6 @@ class GlView {
   CanvasElement canvas;
   RenderingContext gl;
   Field field;
-  Controls controls;
   
   num lastUpdate = 0.0;
 
@@ -81,9 +80,14 @@ class GlView {
 
 
 class Controls {
+  
+  static const int MOUSE_BTN_LEFT = 1;
+  static const int MOUSE_BTN_MIDDLE = 1 << 1;
+  static const int MOUSE_BTN_RIGHT = 1 << 2;
+  
 
   final num minSelection = 5.0;
-  Point mouseSt;
+  int buttons = 0;
   //Element _el;
   //Field field; // to control
   GlView view;
@@ -101,10 +105,12 @@ class Controls {
   Controls(this.view) {
     var _el = view.canvas;
     _el.onMouseDown.listen(onMouseDown);
+    _el.onMouseUp.listen(onMouseUp);
     _el.onMouseMove.listen(onMouseMove);
     _el.onDoubleClick.listen(onZoomIn);
-    _el.onMouseUp.listen(onMouseUp);
+
     onDragEvent.forElement(_el).listen(onCanvasDrag);
+
     _el.onContextMenu.listen(onContext);
 
     _el.onMouseWheel.listen((WheelEvent e) {
@@ -125,19 +131,31 @@ class Controls {
   }
 
   onMouseDown(MouseEvent e) {
+    
+    buttons |=  1 << e.button;
+    //print("onMouseDown: ${e.button} ${buttons}");
   }
 
   onMouseMove(MouseEvent e) {
       
       if( e.which == 1 ) { //LEFT
-        view.canvas.dispatchEvent(new CustomEvent('fielddrag', detail: new DragData(e.movement)));
+        view.canvas.dispatchEvent(
+            new CustomEvent('fielddrag', 
+              detail: new DragData(e.movement, buttons, e)));
       }
       
-      //status("btn:${e.button} ${e.which} ${view.field.range} - ${e.layer}  /  ${view.field.scaleToRange(e.client)} ");
-      updateStatus();
+      status("btn:${buttons} ${view.field.range} - ${e.layer}  /  ${view.field.scaleToRange(e.client)} ");
+      //updateStatus();
   }
 
   onMouseUp(MouseEvent e) {
+    // it doesn't comes in e.button what button is UP.
+    //buttons ^= 1 << e.button;
+    // it comes in e.button is still pressed
+    //buttons &= 1 << e.button;
+    // no. it doesn't works completely
+    buttons = 0;
+    //print("onMouseUp: ${e.button} ${buttons}");
   }
 
   EventStreamProvider<CustomEvent> onDragEvent = new EventStreamProvider('fielddrag');
@@ -158,7 +176,6 @@ class Controls {
       ..start(animManager);*/
     view.update();
     updateStatus();
-  
   }
   
   Tween zoomer = null;

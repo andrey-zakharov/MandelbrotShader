@@ -44,8 +44,11 @@ main() {
       jcontrols = new Controls(jview);
       
       mview.canvas.onContextMenu.listen(updateJConst);
-      mview.canvas.onMouseMove.listen((e) {
-        if (e.which == 3 ) updateJConst(e);
+      mview.canvas.onMouseMove.listen((MouseEvent e ) {
+      //mcontrols.onDragEvent.forElement(mview.canvas).listen((CustomEvent e) {
+        if ((mcontrols.buttons & Controls.MOUSE_BTN_RIGHT) != 0 ) {
+          updateJConst(e);
+        }
       });
       
       document.body.children.add(stats.container);
@@ -64,7 +67,6 @@ main() {
 
 void updateJConst(MouseEvent e) {
   e.preventDefault();
-  print(mview.field.mapToRange(e.layer));
   jview.field.setJuliaConst(mview.field.mapToRange(e.layer));
   jview.update();
 }
