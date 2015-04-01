@@ -14,18 +14,15 @@ final String VS_SHADER_FILE = 'plain.vs.glsl';
 final String FS_SHADER_FILE = 'mandel.fs.glsl';
 final String FS_JULIA_SHADER_FILE = 'julia.fs.glsl';
 
-CanvasElement canvas;
-Controls controls;
+//CanvasElement canvas;
+
 TweenManager animManager;
-Field field;
-var gl;
+GlView mview, jview;
 
 
 Stats stats = new Stats();
 
 main() {
-  initGL();
-  if(gl == null) return;
   
   //
   //new FileReader(VS_SHADER_FILE).readAsText(blob)
@@ -34,15 +31,19 @@ main() {
   HttpRequest.getString(VS_SHADER_FILE).then((String vshader) =>
       HttpRequest.getString(FS_JULIA_SHADER_FILE).then((String julia_fshader) =>
     HttpRequest.getString(FS_SHADER_FILE).then((String fshader) {
-  
-      //field = new Field(gl, vshader, fshader);
-      field = new Field(gl, vshader, julia_fshader);
-      initUI(canvas);
-  
+    
+      mview = new GlView("mandel", vshader, fshader);
+      if(mview == null) return;
+      
+      jview = new GlView("julia", vshader, julia_fshader);
+      if(jview == null) return;
+      
       document.body.children.add(stats.container);
       stats.container.style.position = 'absolute';
       stats.container.style.bottom = '0px';
-      update();
+      mview.update();
+      jview.update();
+      status('');
   
     })));
  
@@ -51,66 +52,9 @@ main() {
   print("loading...");
 }
 
-update() {
-  //lastUpdate = 0;
-  window.animationFrame.then(draw);
-}
-
-num lastUpdate = 0.0;
-
-draw(num delta) {
-  
-  stats.begin();
-  num deltaTime = (delta - lastUpdate) / 1000;
-  //print(deltaTime);
-  lastUpdate = delta;
-  animManager.update(deltaTime);
-  
-  field.draw();
-  
-  stats.end();
-  if( animManager.length > 0 ) {
-    window.requestAnimationFrame(draw);
-    //animSteps--;
-  }
-  
-  
-}
 
 
 status(String message) {
   var status = querySelector('#status');
   status.innerHtml = '<p>${message}</p>';
 }
-
-
-
-
-initGL() {
-
-  canvas = new Element.tag('canvas');
-  //document.body.appendChild( container );
-  document.body.children.add(canvas);
-  canvas.width = document.body.clientWidth;
-  canvas.height = window.innerHeight;
-  gl = canvas.getContext("webgl");
-  if (gl == null) gl = canvas.getContext("experimental-webgl");
-  if (gl == null) {
-    status('Простите, ваш браузер не поддерживает WebGl');
-    return null;
-  }
-
-  gl.viewport(0, 0, canvas.width, canvas.height);
-  status('');
-  return gl;
-}
-
-
-onResize(e) {
-  canvas.width = document.body.clientWidth;
-  canvas.height = window.innerHeight;
-  gl.viewport(0, 0, canvas.width, canvas.height);
-  update();
-}
-
-

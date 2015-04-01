@@ -1,8 +1,14 @@
 part of mandel;
 
 int animSteps = 0;
-GUI gui;
+//GUI gui;
 
+
+initUI() {
+  animManager = new TweenManager();
+  Tween.combinedAttributesLimit = 4;
+  animManager.resume();
+}
 
 class DragData {
   Point previous;
@@ -10,21 +16,68 @@ class DragData {
   DragData(this.previous, this.current);
 }
 
+class GlView {
+ 
+  CanvasElement canvas;
+  RenderingContext gl;
+  Field field;
+  Controls controls;
+  
+  num lastUpdate = 0.0;
 
-initUI(CanvasElement canvas) {
+  GlView(String id, String vs, String fs) {
+    canvas = new CanvasElement(
+        width: document.body.clientWidth~/2, 
+        height: window.innerHeight
+    );
+    canvas.attributes["id"] = id;
+    document.body.children.add(canvas);
+    gl = canvas.getContext3d();
+    
+    if (gl == null) {
+      status('Простите, ваш браузер не поддерживает WebGl');
+      return;
+    }
+    
+    gl.viewport(0, 0, canvas.width, canvas.height);
+    window.onResize.listen(this.onResize);
+
+    field = new Field(gl, vs, fs );
+    controls = new Controls(canvas, field);
+
+  }
   
   
-  window.onResize.listen(onResize);
-  animManager = new TweenManager();
-  Tween.combinedAttributesLimit = 4;
-  animManager.resume();
-  controls = new Controls(canvas);
   
-  /*gui = new GUI();
-  gui.add(field, "reset");
-  gui.add(controls, "animate" );*/
-  //
+  void onResize(e) {
+    this.canvas.width = document.body.clientWidth~/2;
+    this.canvas.height = window.innerHeight;
+    this.gl.viewport(0, 0, canvas.width, canvas.height);
+  }
+  
+  update() {
+    window.animationFrame.then(draw);
+  }
+  
+  
+  draw(num delta) {
+    
+    stats.begin();
+    num deltaTime = (delta - lastUpdate) / 1000;
+    //print(deltaTime);
+    lastUpdate = delta;
+    animManager.update(deltaTime);
+    
+    field.draw();
+    
+    stats.end();
+    if( animManager.length > 0 ) {
+      window.requestAnimationFrame(draw);
+      //animSteps--;
+    }
+  }
 }
+
 
 
 class Controls {
@@ -32,6 +85,7 @@ class Controls {
   final num minSelection = 1.0;
   Point mouseSt;
   Element _el;
+  Field field; // to control
   bool _animate = false;
   bool get animate => _animate;
   void set animate(bool v) {
@@ -43,13 +97,13 @@ class Controls {
     _animate = v;
   }
 
-  Controls(this._el) {
+  Controls(this._el, this.field) {
 
     _el.onMouseDown.listen(onMouseDown);
     _el.onMouseMove.listen(onMouseMove);
     _el.onDoubleClick.listen(onZoomIn);
     _el.onMouseUp.listen(onMouseUp);
-    onDragEvent.forElement(canvas).listen(onCanvasDrag);
+    onDragEvent.forElement(_el).listen(onCanvasDrag);
     _el.onContextMenu.listen(onContext);
 
     _el.onMouseWheel.listen((WheelEvent e) {
@@ -115,7 +169,7 @@ class Controls {
     /*zoomer = new Tween.to( field, Field.TWEEN_DRAG, 1)
       ..targetRelative = [-relative.x, -relative.y]
       ..start(animManager);*/
-    update();
+    //update();
     updateStatus();
   
   }
@@ -177,8 +231,4 @@ class Controls {
     //print(e.client);
     field.setJuliaConst(field.scaleToRange(e.client));
   }
-}
-
-uidraw() {
-
 }
