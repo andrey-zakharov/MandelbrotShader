@@ -32,15 +32,37 @@ body {
   text-shadow: 1px 1px 2px white;
   z-index:1;
 }
+.copyright form { display: inline; }
+#help { display: none; }
 </style>
 
 </head>
 <body>
   <div id='status'>Loading...</div>
+  <div id="help">
+  <ul>
+    <li><em>drag by left button</em> - move field</li>
+    <li><em>double click</em> or <em>wheel</em> - zoom</li>
+    <li><em>right click</em> or <em>drag by right button</em> on left image - change C for Julia (right image)</li>
+  </ul>
+
+
+  </div>
+
+
   <script type="application/dart" src="main.dart"></script>
   <script type="text/javascript" src="packages/browser/dart.js"></script>
   <!--script type="text/javascript" src="dat.gui.min.js"></script-->
-  <div class="copyright">by Andrey Zakharov ©2015</div>
+  <div class="copyright">by Andrey Zakharov ©2015 
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+<input type="hidden" name="cmd" value="_s-xclick">
+<input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----MIIHNwYJKoZIhvcNAQcEoIIHKDCCByQCAQExggEwMIIBLAIBADCBlDCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20CAQAwDQYJKoZIhvcNAQEBBQAEgYAW5UJWCc75jv8WjZlS+V08vRK7ZUo7iTx3sY67UDVkrgUTBFtFiIBZjR6oCMsEV8j23ZKJaTi4WuJNsJDP5hsjhr6LrimH8d05FwryKZKOFFt/BEblO/bsgjyboHk1QEsRMGM5mnKeWEmzET6LY/lJ7vn2wIrRhZ5qAkfoCTa8ezELMAkGBSsOAwIaBQAwgbQGCSqGSIb3DQEHATAUBggqhkiG9w0DBwQIqPC66YboB9eAgZBYzCD/qUqOX4J49ilxMV1hJV2Dl/RZKCAuOJvQIfRt+ka3c1oH7F1jZAreH3yF8+2TJMaRA7YuzCis4xJAaC+BJukIkz6riD4kKUMMRXKYY/YPjM9FIVluHc5l1Aw5cLlbsf24ew3kiKXC7qaCw8HGI1bVrw8xwZk+PNaj7OC5gRf0ZrsVxNdCsDmD0Q9ja7ugggOHMIIDgzCCAuygAwIBAgIBADANBgkqhkiG9w0BAQUFADCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20wHhcNMDQwMjEzMTAxMzE1WhcNMzUwMjEzMTAxMzE1WjCBjjELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAkNBMRYwFAYDVQQHEw1Nb3VudGFpbiBWaWV3MRQwEgYDVQQKEwtQYXlQYWwgSW5jLjETMBEGA1UECxQKbGl2ZV9jZXJ0czERMA8GA1UEAxQIbGl2ZV9hcGkxHDAaBgkqhkiG9w0BCQEWDXJlQHBheXBhbC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMFHTt38RMxLXJyO2SmS+Ndl72T7oKJ4u4uw+6awntALWh03PewmIJuzbALScsTS4sZoS1fKciBGoh11gIfHzylvkdNe/hJl66/RGqrj5rFb08sAABNTzDTiqqNpJeBsYs/c2aiGozptX2RlnBktH+SUNpAajW724Nv2Wvhif6sFAgMBAAGjge4wgeswHQYDVR0OBBYEFJaffLvGbxe9WT9S1wob7BDWZJRrMIG7BgNVHSMEgbMwgbCAFJaffLvGbxe9WT9S1wob7BDWZJRroYGUpIGRMIGOMQswCQYDVQQGEwJVUzELMAkGA1UECBMCQ0ExFjAUBgNVBAcTDU1vdW50YWluIFZpZXcxFDASBgNVBAoTC1BheVBhbCBJbmMuMRMwEQYDVQQLFApsaXZlX2NlcnRzMREwDwYDVQQDFAhsaXZlX2FwaTEcMBoGCSqGSIb3DQEJARYNcmVAcGF5cGFsLmNvbYIBADAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBBQUAA4GBAIFfOlaagFrl71+jq6OKidbWFSE+Q4FqROvdgIONth+8kSK//Y/4ihuE4Ymvzn5ceE3S/iBSQQMjyvb+s2TWbQYDwcp129OPIbD9epdr4tJOUNiSojw7BHwYRiPh58S1xGlFgHFXwrEBb3dgNbMUa+u4qectsMAXpVHnD9wIyfmHMYIBmjCCAZYCAQEwgZQwgY4xCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJDQTEWMBQGA1UEBxMNTW91bnRhaW4gVmlldzEUMBIGA1UEChMLUGF5UGFsIEluYy4xEzARBgNVBAsUCmxpdmVfY2VydHMxETAPBgNVBAMUCGxpdmVfYXBpMRwwGgYJKoZIhvcNAQkBFg1yZUBwYXlwYWwuY29tAgEAMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqGSIb3DQEJBTEPFw0xNTA0MDEyMzEyMzJaMCMGCSqGSIb3DQEJBDEWBBRNCq+DXGx5BomjMmHD3L6kdbqZZDANBgkqhkiG9w0BAQEFAASBgIlmFKacWNDj1cegYK4a5rgJZNY1l8gt3ehkLwRXmXR+2/Xwazx7d3uzEx1XiNgfO+LgiWM6MJ+NLYJnNbVH0+i03M/wQiQBVUmtFAtmJlEi/IkIatNCzIECoKGWDK/mq3z0EXYM2wMbpQmLs1cOAygMUY7XIdgqtKC3HQt+MnuB-----END PKCS7-----
+">
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+</form>
+
+</div>
   
 </body>
 </html>
