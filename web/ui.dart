@@ -137,8 +137,8 @@ class Controls {
   }
 
   onMouseMove(MouseEvent e) {
-      
-      if( e.which == 1 ) { //LEFT
+      if( buttons & MOUSE_BTN_LEFT > 0 ) { //LEFT
+        print(e.movement);
         view.canvas.dispatchEvent(
             new CustomEvent('fielddrag', 
               detail: new DragData(e.movement, buttons, e)));
