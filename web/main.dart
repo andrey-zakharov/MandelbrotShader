@@ -43,6 +43,11 @@ main() {
       if(jview == null) return;
       jcontrols = new Controls(jview);
       
+      mview.canvas.onContextMenu.listen(updateJConst);
+      mview.canvas.onMouseMove.listen((e) {
+        if (e.which == 3 ) updateJConst(e);
+      });
+      
       document.body.children.add(stats.container);
       stats.container.style.position = 'absolute';
       stats.container.style.bottom = '0px';
@@ -57,7 +62,12 @@ main() {
   print("loading...");
 }
 
-
+void updateJConst(MouseEvent e) {
+  e.preventDefault();
+  print(mview.field.mapToRange(e.layer));
+  jview.field.setJuliaConst(mview.field.mapToRange(e.layer));
+  jview.update();
+}
 
 status(String message) {
   var status = querySelector('#status');

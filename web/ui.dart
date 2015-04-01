@@ -216,8 +216,6 @@ class Controls {
   }
   
   void onContext(MouseEvent e) {
-    e.preventDefault();
-    //print(e.client);
-    view.field.setJuliaConst(view.field.scaleToRange(e.client));
+
   }
 }
