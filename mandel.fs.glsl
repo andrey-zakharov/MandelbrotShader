@@ -22,17 +22,22 @@ vec2 f( in vec2 z, in vec2 c ) {
   return newr;
 }
 
+float R( in vec2 c ) {
+  return (1.0 + sqrt( 1.0 + 4.0*length(c) )) / 2.0;
+}
+
 vec4 getKmax( in vec2 c ) {
-  vec4 res = vec4(0.0, 0.0, 0.0, 0.0);
+  vec4 res = vec4(0.01, 0.01, 0.01, 0.0);
 
   vec2 z = c;
 
-  for (int k = 0; k < 500; k++ ) {
+  for (int k = 0; k < 250; k++ ) {
     z = f( z, c );
 
     if ( length(z) >= 2.0 ) {
       res.x = length(z);
       res.y = float(k);
+      //res.z = R(c);
       return res; // return k где  мы расходимся в бесконечность
     }
   }
@@ -49,7 +54,7 @@ void main() {
     vec4 k = getKmax(pos);
     gl_FragColor.r = (k.r - 2.0) / 2.0;
     gl_FragColor.g = k.g / float(u_kmax);
-
+    gl_FragColor.b = 0.0;
     gl_FragColor.a = 1.0;
 }
   
