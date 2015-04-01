@@ -73,8 +73,8 @@ class Field implements Tweenable {
     gl.useProgram(p);
     if (!gl.getProgramParameter(p, RenderingContext.LINK_STATUS)) {
       print(gl.getProgramInfoLog(p));
-      status(gl.getShaderInfoLog(p));
-      throw new Exception(gl.getShaderInfoLog(p));
+      status(gl.getProgramInfoLog(p));
+      throw new Exception(gl.getProgramInfoLog(p));
     }
 
     return p;
