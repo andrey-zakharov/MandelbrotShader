@@ -3,7 +3,7 @@ part of mandel;
 
 /// entire field of view
 class Field implements Tweenable {
-  var gl;
+  RenderingContext gl;
   Program program; // shaders
   int kmax = 250;
 
@@ -13,7 +13,7 @@ class Field implements Tweenable {
     initUniforms();
   }
   
-  void reset() { setRange(new Rectangle(-2.0, -1.5, 3, 3)); update(); }
+  //void reset() { setRange(new Rectangle(-2.0, -1.5, 3, 3)); update(); }
 
   draw() {
 
@@ -155,10 +155,10 @@ class Field implements Tweenable {
   initTexture() {
 
     _fractalTexture = gl.createTexture();
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.NEAREST);
+    gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.NEAREST);
+    gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_WRAP_S, RenderingContext.CLAMP_TO_EDGE);
+    gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_WRAP_T, RenderingContext.CLAMP_TO_EDGE);
   }
 
 
@@ -196,16 +196,16 @@ class Field implements Tweenable {
   Point scaleToRange( Point drag ) {
     // move zero to half point, then scale to current range
     return new Point (
-      drag.x * range.width / canvas.clientWidth,
-      drag.y * range.height / canvas.clientHeight
+      drag.x * range.width / gl.drawingBufferHeight,
+      drag.y * range.height / gl.drawingBufferWidth
     );
   }
   
   /// p from canvas
   Point mapToRange( Point p ) {
     return new Point (
-      p.x * range.width / canvas.clientWidth + range.left,
-      p.y * range.height / canvas.clientHeight + range.top
+      p.x * range.width / gl.drawingBufferWidth + range.left,
+      p.y * range.height / gl.drawingBufferHeight + range.top
     );
   }
 
@@ -224,7 +224,7 @@ class Field implements Tweenable {
       gl.uniform2f(u_c, c.x, c.y );
       var r = R(c);
       setRange( new Rectangle(-r, -r, 2*r, 2*r) );
-      update();
+      //update();
     }
   }
 }

@@ -18,6 +18,7 @@ final String FS_JULIA_SHADER_FILE = 'julia.fs.glsl';
 
 TweenManager animManager;
 GlView mview, jview;
+Controls mcontrols, jcontrols;
 
 
 Stats stats = new Stats();
@@ -27,6 +28,7 @@ main() {
   //
   //new FileReader(VS_SHADER_FILE).readAsText(blob)
   //HttpRequest.getString(VS_SHADER_FILE).then(print);
+  initUI();
 
   HttpRequest.getString(VS_SHADER_FILE).then((String vshader) =>
       HttpRequest.getString(FS_JULIA_SHADER_FILE).then((String julia_fshader) =>
@@ -34,9 +36,12 @@ main() {
     
       mview = new GlView("mandel", vshader, fshader);
       if(mview == null) return;
+      mcontrols = new Controls(mview);
+
       
       jview = new GlView("julia", vshader, julia_fshader);
       if(jview == null) return;
+      jcontrols = new Controls(jview);
       
       document.body.children.add(stats.container);
       stats.container.style.position = 'absolute';

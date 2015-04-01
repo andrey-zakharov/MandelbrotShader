@@ -13,7 +13,8 @@ initUI() {
 class DragData {
   Point previous;
   Point current;
-  DragData(this.previous, this.current);
+  Point offset;
+  DragData(this.offset);
 }
 
 class GlView {
@@ -43,7 +44,6 @@ class GlView {
     window.onResize.listen(this.onResize);
 
     field = new Field(gl, vs, fs );
-    controls = new Controls(canvas, field);
 
   }
   
@@ -82,10 +82,11 @@ class GlView {
 
 class Controls {
 
-  final num minSelection = 1.0;
+  final num minSelection = 5.0;
   Point mouseSt;
-  Element _el;
-  Field field; // to control
+  //Element _el;
+  //Field field; // to control
+  GlView view;
   bool _animate = false;
   bool get animate => _animate;
   void set animate(bool v) {
@@ -97,8 +98,8 @@ class Controls {
     _animate = v;
   }
 
-  Controls(this._el, this.field) {
-
+  Controls(this.view) {
+    var _el = view.canvas;
     _el.onMouseDown.listen(onMouseDown);
     _el.onMouseMove.listen(onMouseMove);
     _el.onDoubleClick.listen(onZoomIn);
@@ -120,56 +121,42 @@ class Controls {
   }
   
   updateStatus() {
-    status("Square: ${field.range.width * field.range.height}, ${field.range}");
+    status("Square: ${view.field.range.width * view.field.range.height}, ${view.field.range}");
   }
 
   onMouseDown(MouseEvent e) {
-      mouseSt = new Point(e.client.x, e.client.y);
-      if( e.button == 2 ) {
-        e.preventDefault();
-        
-      }
-      //add to scene selection rect
   }
 
   onMouseMove(MouseEvent e) {
-      if( mouseSt != null && mouseSt.squaredDistanceTo(e.client) >= minSelection ) {
-        _el.dispatchEvent(new CustomEvent('fielddrag', detail: new DragData(mouseSt, e.client)));
-        mouseSt = e.client;
+      
+      if( e.which == 1 ) { //LEFT
+        view.canvas.dispatchEvent(new CustomEvent('fielddrag', detail: new DragData(e.movement)));
       }
       
-      //status("${field.range} - ${e.client}  /  ${field.scaleToRange(e.client)}");
+      //status("btn:${e.button} ${e.which} ${view.field.range} - ${e.layer}  /  ${view.field.scaleToRange(e.client)} ");
       updateStatus();
   }
 
   onMouseUp(MouseEvent e) {
-    if( mouseSt != null ) {
-      //print( "${mouseSt.x}x${mouseSt.y} - ${e.client.x}x${e.client.y}");
-      mouseSt = null;
-
-    }
   }
 
   EventStreamProvider<CustomEvent> onDragEvent = new EventStreamProvider('fielddrag');
+  EventStreamProvider<CustomEvent> onUpdateEvent = new EventStreamProvider('fieldupdate');
 
 
 
   onCanvasDrag(CustomEvent e) {
-    //print("Jere: ${e}");
-    Point relative = e.detail.current - e.detail.previous;
-  
-    //print("${relative} ${field.scaleToRange(relative)}");
-    relative = field.scaleToRange(relative);
+    Point relative = view.field.scaleToRange(e.detail.offset);
     
     if( zoomer != null ) {
       zoomer.kill();
     }
     
-    field.moveViewport(field.range.left - relative.x, field.range.top - relative.y);
+    view.field.moveViewport(view.field.range.left - relative.x, view.field.range.top - relative.y);
     /*zoomer = new Tween.to( field, Field.TWEEN_DRAG, 1)
       ..targetRelative = [-relative.x, -relative.y]
       ..start(animManager);*/
-    //update();
+    view.update();
     updateStatus();
   
   }
@@ -177,16 +164,16 @@ class Controls {
   Tween zoomer = null;
   
   onZoomIn(MouseEvent e) {
-    zoomTo( field.mapToRange(e.client), 1.62 );
+    zoomTo( view.field.mapToRange(e.layer), 1.62 );
     
   }
   
   onZoomOut(MouseEvent e) {
-    zoomTo( field.mapToRange(e.client), 1/1.62 );
+    zoomTo( view.field.mapToRange(e.layer), 1/1.62 );
   }
   
   zoomTo( Point c, num zoom ) {
-    Rectangle zoomOrig = field.range;
+    Rectangle zoomOrig = view.field.range;
     if( zoomer != null ) {
       zoomOrig = new Rectangle( 
           zoomer.targetValues[0], zoomer.targetValues[1],
@@ -198,8 +185,10 @@ class Controls {
     // get new zoom range as golden mean
     num w = zoomOrig.width / zoom;
     num h = zoomOrig.height / zoom;
-    num x = c.x - w/2;
-    num y = c.y - h/2;
+    Point zoomOrigCenter = new Point( zoomOrig.left + zoomOrig.width/2, zoomOrig.top + zoomOrig.height/2 );
+    Point zoomCenter = new Point(zoomOrigCenter.x + (c.x-zoomOrigCenter.x)/3, zoomOrigCenter.y + (c.y-zoomOrigCenter.y)/3);
+    num x = zoomCenter.x - w/2;
+    num y = zoomCenter.y - h/2;
     //print( [ x, y, w, h ] );
     
     if( zoomer != null ) {
@@ -207,17 +196,17 @@ class Controls {
     }
     
     if( animate ) {
-      zoomer = new Tween.to(field, Field.TWEEN_ZOOM, 5)
+      zoomer = new Tween.to(view.field, Field.TWEEN_ZOOM, 5)
         ..targetValues = [ x, y, w, h ]
         ..easing = TweenEquations.easeOutExpo
         ..start(animManager)
         ..callback = resetZoom;
     } else {
-      field.setRange(new Rectangle(x,y,w,h));
+      view.field.setRange(new Rectangle(x,y,w,h));
       
     }
   
-    update();// start anim
+    view.update();// start anim
     updateStatus();
     
   }
@@ -229,6 +218,6 @@ class Controls {
   void onContext(MouseEvent e) {
     e.preventDefault();
     //print(e.client);
-    field.setJuliaConst(field.scaleToRange(e.client));
+    view.field.setJuliaConst(view.field.scaleToRange(e.client));
   }
 }
