@@ -8,6 +8,10 @@ initUI() {
   animManager = new TweenManager();
   Tween.combinedAttributesLimit = 4;
   animManager.resume();
+  
+  querySelector("#help").onClick.listen((e) => e.target.style.display="none");
+  querySelector("#help-sign").onClick.listen((e) => e.target.style.display="inherit");
+  
 }
 
 class DragData {
