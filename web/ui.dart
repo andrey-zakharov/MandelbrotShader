@@ -9,8 +9,10 @@ initUI() {
   Tween.combinedAttributesLimit = 4;
   animManager.resume();
   
-  querySelector("#help").onClick.listen((e) => e.target.style.display="none");
-  querySelector("#help-sign").onClick.listen((e) => e.target.style.display="inherit");
+  var helpPopup = querySelector("#help"); 
+  
+  querySelector("#help-sign").onClick.listen((e) => helpPopup.classes.remove("hide"));
+  helpPopup.onClick.listen((e) => e.target.classes.add("hide"));
   
 }
 

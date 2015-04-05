@@ -1,5 +1,5 @@
 
-precision highp  float;/// looks like it doest affect anything
+precision mediump float;
 
 uniform lowp vec4 u_color;
 uniform vec2 u_viewport;

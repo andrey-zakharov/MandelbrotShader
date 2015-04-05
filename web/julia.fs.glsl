@@ -1,11 +1,11 @@
 
-precision highp  float;/// looks like it doest affect anything
+precision mediump float;// highp not on all platforms
 
 uniform lowp vec4 u_color;
 uniform vec2 u_viewport;
 //uniform vec2 u_minrange;
 //uniform vec2 u_maxrange;
-uniform highp vec4 u_range; // xy - min, zw - max
+uniform vec4 u_range; // xy - min, zw - max
 uniform lowp vec2 u_c; 
 varying vec2 v_texCoord;
 #define KMAX 250
