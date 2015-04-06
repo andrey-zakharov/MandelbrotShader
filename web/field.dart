@@ -6,6 +6,7 @@ class Field implements Tweenable {
   RenderingContext gl;
   Program program; // shaders
   int kmax = 250;
+  Point _currentC; // current const of Julia set
 
   Field(this.gl, String vertexShader, String fragmentShader) {
     program = initProgram(vertexShader, fragmentShader);
@@ -94,12 +95,12 @@ class Field implements Tweenable {
     UniformLocation u_c = gl.getUniformLocation(program, "u_c");
     if( u_c != null ) {
       //var c = new Point( -0.74543, 0.11301 );
-      var c = new Point( -0.8, 0.156);
+      _currentC = new Point( -0.8, 0.156);
       //gl.uniform2f(u_c, -0.8, 0.156);
       //gl.uniform2f(u_c,  0.285,  0.01);
      // gl.uniform2f(u_c,  -0.0085 , 0.71);
-      gl.uniform2f(u_c, c.x, c.y );
-      var r = R(c);
+      gl.uniform2f(u_c, _currentC.x, _currentC.y );
+      var r = R(_currentC);
       setRange( new Rectangle(-r, -r, 2*r, 2*r) );
     }
     
@@ -123,14 +124,14 @@ class Field implements Tweenable {
     gl.vertexAttribPointer(aPosition, _dims, RenderingContext.FLOAT, false, 0, 0);
 
     rangeBuffer = gl.createBuffer();
-    loadRangeBuffer();
+    _loadRangeBuffer();
 
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
     gl.enableVertexAttribArray(aRange);
     gl.vertexAttribPointer(aRange, _dims, RenderingContext.FLOAT, false, 0, 0);
   }
 
-  loadRangeBuffer() {
+  _loadRangeBuffer() {
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
     Float32List rangeList = new Float32List.fromList([
         range.left, range.bottom,
@@ -148,7 +149,15 @@ class Field implements Tweenable {
 
   setRange(Rectangle newRange) {
     this.range = newRange;
-    loadRangeBuffer();
+    _loadRangeBuffer();
+    setSpotRadius((this.range.width+this.range.height)/500.0);
+  }
+  
+  setSpotRadius(double radius) {
+    UniformLocation u_spot = gl.getUniformLocation(program, "u_spot_radius");
+      if( u_spot != null ) {
+        gl.uniform1f(u_spot, radius);     
+      }
   }
 
   // unused
@@ -216,14 +225,26 @@ class Field implements Tweenable {
   static const int TWEEN_DRAG = 1;
   static const int TWEEN_ZOOM = 2;
   
+  Point getJuliaConst() => _currentC;
+  
   void setJuliaConst(Point c) {
     
     UniformLocation u_c = gl.getUniformLocation(program, "u_c");
     if( u_c != null ) {
+      _currentC = c;
       gl.uniform2f(u_c, c.x, c.y );
       var r = R(c);
       setRange( new Rectangle(-r, -r, 2*r, 2*r) );
       //update();
     }
+  }
+  
+  setSpot(Point c) {
+    UniformLocation u_c = gl.getUniformLocation(program, "u_c");
+        if( u_c != null ) {
+          _currentC = c;
+          gl.uniform2f(u_c, c.x, c.y );
+        }
+    
   }
 }

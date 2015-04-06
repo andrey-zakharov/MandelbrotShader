@@ -3,6 +3,8 @@ precision mediump float;
 
 uniform lowp vec4 u_color;
 uniform vec2 u_viewport;
+uniform vec2 u_c;
+uniform float u_spot_radius; // calc from current range
 //uniform vec2 u_minrange;
 //uniform vec2 u_maxrange;
 uniform vec4 u_range; // xy - min, zw - max
@@ -59,5 +61,13 @@ void main() {
     gl_FragColor.g = k.y / float(MAXK);
     gl_FragColor.b = k.x >= maxr ? (k.x - maxr) * (k.y / float(MAXK)) / maxr : k.x / maxr;
     gl_FragColor.a = 1.0;
+
+  // spot
+    if( length(pos-u_c) <= u_spot_radius ) {
+      gl_FragColor.r = 1.0;
+      gl_FragColor.g *= .5;
+      gl_FragColor.b *= .5;
+    }
+
 }
   

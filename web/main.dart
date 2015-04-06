@@ -55,6 +55,8 @@ main() {
       document.body.children.add(stats.container);
       stats.container.style.position = 'absolute';
       stats.container.style.bottom = '0px';
+      
+      mview.field.setSpot(jview.field.getJuliaConst());
       mview.update();
       jview.update();
       status('');
@@ -69,7 +71,9 @@ main() {
 void updateJConst(MouseEvent e) {
   e.preventDefault();
   jview.field.setJuliaConst(mview.field.mapToRange(e.layer));
+  mview.field.setSpot(jview.field.getJuliaConst()); // update spot
   jview.update();
+  mview.update();
 }
 
 status(String message) {
