@@ -12,7 +12,7 @@ initUI() {
   var helpPopup = querySelector("#help"); 
   
   querySelector("#help-sign").onClick.listen((e) => helpPopup.classes.remove("hide"));
-  helpPopup.onClick.listen((e) => e.target.classes.add("hide"));
+  helpPopup.onClick.listen((e) => helpPopup.classes.add("hide"));
   
 }
 
