@@ -24,6 +24,7 @@ body {
   overflow:hidden;
   background: white;
   z-index:1;
+  left: 45pt;
 }
 .copyright {
   position: absolute;
@@ -33,20 +34,65 @@ body {
   z-index:1;
 }
 .copyright form { display: inline; }
-#help { display: none; }
+#help-sign {
+  font-size: 20pt; font-family: sans;
+  position: absolute;
+  border:1px solid black;
+  border-radius: 50%;
+  width: 25pt;
+  height: 25pt;
+  text-align: center;
+  z-index:2;
+    background: rgba(0,20,255,0.25);
+  
+  color: white;
+  
+    box-shadow: 
+        0 2px 8px rgba(0,0,0,0.5), /* Exterior Shadow */
+        inset 0 1px rgba(255,255,255,0.3), /* Top light Line */
+        inset 0 10px rgba(255,255,255,0.2), /* Top Light Shadow */
+        inset 0 10px 20px rgba(255,255,255,0.25), /* Sides Light Shadow */
+        inset 0 -15px 30px rgba(0,0,255,0.3); /* Dark Background */
+    cursor: pointer;
+}
+.stroked {
+text-shadow:
+    -1px -1px 0 #000,
+    1px -1px 0 #000,
+    -1px 1px 0 #000,
+    1px 1px 0 #000;
+}
+#help {  position: absolute; 
+  left: 5px; top: 5px; right: 5px; 
+  text-align: center; z-index: 5; 
+  background: infobackground;
+  color: infotext;
+  border-radius: 5px; 
+  cursor: pointer;
+}
+#help ul { list-style: none; }
+#help li { float: left; width: 33%}
+#help p { font-size: 150%;}
+#help p strong { display: block; font-size: 2em; }
+.hide { display:none;}
 </style>
 
 </head>
 <body>
   <div id='status'>Loading...</div>
-  <div id="help">
-  <ul>
-    <li><em>drag by left button</em> - move field</li>
-    <li><em>double click</em> or <em>wheel</em> - zoom</li>
-    <li><em>right click</em> or <em>drag by right button</em> on left image - change C for Julia (right image)</li>
-  </ul>
-
-
+  <div id="help-sign"><span class=stroked>?</span></div>
+  <div id="help" class="hide">
+      <ul>
+        <li><img width=60 height=101 src='i/mouse-left.png' alt='mouse left'/>
+        <p><em>drag by left button</em> - 
+          <strong>move field</strong></p></li>
+        <li><img width=60 height=101 src='i/mouse-scroll.png' alt='mouse wheel'/>
+          <p><em>double click</em> or <em>wheel</em> - 
+          <strong>zoom</strong></p></li>
+        <li><img width=69 height=101 src='i/mouse-right.png' alt='mouse right'/>
+          <p><em>right click</em> or <em>drag by right button</em> on left image - 
+          <strong>change C for Julia (right image)</strong></p></li>
+      </ul>
   </div>
 
 
@@ -63,6 +109,15 @@ body {
 </form>
 
 </div>
-  
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-61543485-1', 'auto');
+  ga('send', 'pageview');
+
+</script>  
 </body>
 </html>
