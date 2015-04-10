@@ -72,14 +72,44 @@ class Field implements Tweenable {
     gl.attachShader(p, vs);
     gl.attachShader(p, fs);
     gl.linkProgram(p);
-    gl.useProgram(p);
+    
     if (!gl.getProgramParameter(p, RenderingContext.LINK_STATUS)) {
       print(gl.getProgramInfoLog(p));
       status(gl.getProgramInfoLog(p));
       throw new Exception(gl.getProgramInfoLog(p));
     }
+    
+    gl.useProgram(p);
 
     return p;
+  }
+  
+  updateFragmentShader(String fshader) {
+    Shader fs = gl.createShader(RenderingContext.FRAGMENT_SHADER);
+    //gl.shaderSource(fs, fsSource);
+    gl.shaderSource(fs, fshader);
+    gl.compileShader(fs);
+    if (!gl.getShaderParameter(fs, RenderingContext.COMPILE_STATUS)) {
+      print(gl.getShaderInfoLog(fs));
+      status(gl.getShaderInfoLog(fs));
+      throw new Exception(gl.getShaderInfoLog(fs));
+    }
+    
+    if( program != null ) {
+        var shaders = gl.getAttachedShaders(program);
+        gl.detachShader(program, shaders[1]);
+        gl.deleteShader(shaders[1]);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, RenderingContext.LINK_STATUS)) {
+          print(gl.getProgramInfoLog(program));
+          status(gl.getProgramInfoLog(program));
+          throw new Exception(gl.getProgramInfoLog(program));
+        }
+        
+        //gl.useProgram(program);
+        
+    }
   }
 
   num R( Point c ) {

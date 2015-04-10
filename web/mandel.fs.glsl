@@ -39,9 +39,10 @@ vec4 getKmax( in vec2 c ) {
   for (int k = 0; k < MAXK; k++ ) {
     z = f( z, c );
 
-    if ( length(z) >= 2.0 ) {
+    if ( z.x*z.x + z.y*z.y >= 4.0 ) {
       res.x = length(z);
       res.y = float(k);
+      res.z = 1.0;
       //res.z = R(c);
       return res; // return k где  мы расходимся в бесконечность
     }
@@ -49,27 +50,16 @@ vec4 getKmax( in vec2 c ) {
 
   res.x = length(z);
   res.y = float(MAXK);
+  res.z = 0.0;
   return res;
 
 }
+/**
+ * k.x - length of z
+ * k,y - iteration
+ * k.z - is it outside
+ */
+void pallete(vec2 pos, vec4 k);
 void main() {
-    vec2 pos = vec2(
-      (v_texCoord.x),// / (u_range.z - u_range.x),
-      (v_texCoord.y)// / (u_range.w - u_range.y)
-    );
-    vec4 k = getKmax(pos);
-    float maxr = R(pos); 
-    gl_FragColor.r = 0.0;
-    gl_FragColor.g = k.y / float(MAXK);
-    gl_FragColor.b = k.x >= maxr ? (k.x - maxr) * (k.y / float(MAXK)) / maxr : k.x / maxr;
-    gl_FragColor.a = 1.0;
-
-  // spot
-    if( length(pos-u_c) <= u_spot_radius ) {
-      gl_FragColor.r = 1.0;
-      gl_FragColor.g *= .5;
-      gl_FragColor.b *= .5;
-    }
-
+    pallete(v_texCoord, getKmax(v_texCoord));
 }
-  

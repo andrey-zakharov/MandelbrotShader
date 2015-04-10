@@ -14,14 +14,15 @@ part 'spot.dart';
 
 final String VS_SHADER_FILE = 'plain.vs.glsl';
 final String FS_SHADER_FILE = 'mandel.fs.glsl';
+final List FS_PALLETE_FILES = ['pal1.glsl', 'pal2.glsl'];
+int currentPallete = 0;
 final String FS_JULIA_SHADER_FILE = 'julia.fs.glsl';
 
 //CanvasElement canvas;
-
 TweenManager animManager;
 GlView mview, jview;
 Controls mcontrols, jcontrols;
-
+String _cachedMandelShader;
 
 Stats stats = new Stats();
 
@@ -36,9 +37,11 @@ main() {
   status("Loading...");
   HttpRequest.getString(VS_SHADER_FILE).then((String vshader) =>
       HttpRequest.getString(FS_JULIA_SHADER_FILE).then((String julia_fshader) =>
-    HttpRequest.getString(FS_SHADER_FILE).then((String fshader) {
+          HttpRequest.getString(FS_SHADER_FILE).then((String fshader) =>
+            HttpRequest.getString(FS_PALLETE_FILES[currentPallete]).then((String pal) {
     
-      mview = new GlView("mandel", vshader, fshader);
+      _cachedMandelShader = fshader;
+      mview = new GlView("mandel", vshader, fshader + pal);
       if(mview == null) return;
       mcontrols = new Controls(mview);
 
@@ -65,7 +68,7 @@ main() {
       jview.update();
       status('');
   
-    })));
+    }))));
  
       
       //querySelector("#shader-vx").text, querySelector("#shader-fx").text);

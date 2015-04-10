@@ -14,6 +14,26 @@ initUI() {
   querySelector("#help-sign").onClick.listen((e) => helpPopup.classes.remove("hide"));
   helpPopup.onClick.listen((e) => helpPopup.classes.add("hide"));
   
+  window.onKeyPress.listen((KeyboardEvent e) {
+    //print("${e.keyCode} ${e.charCode} ${e.which}");
+    
+    if( e.charCode == 'p'.codeUnitAt(0) ) {
+      loadNextPallete();
+    }
+  });
+  
+}
+
+
+loadNextPallete() {
+  status("Changing pallete...");
+  HttpRequest.getString(FS_PALLETE_FILES[++currentPallete % FS_PALLETE_FILES.length]).then((String pal) {
+    mview.field.updateFragmentShader(_cachedMandelShader + pal);
+    status("");
+    mview.update();
+    
+  });
+   
 }
 
 class DragData {
@@ -60,6 +80,10 @@ class GlView {
     field = new Field(gl, vs, fs );
     status( "zoom: ${field.getZoom()}");
 
+  }
+  
+  updateFragShader(String shader) {
+    
   }
   
   status(var st) {
@@ -142,7 +166,10 @@ class Controls {
         onZoomIn(e);
       }
     });
+    
+
   }
+
   
   updateStatus() {
     //status("Square: ${view.field.range.width * view.field.range.height}, ${view.field.range}");
@@ -165,7 +192,7 @@ class Controls {
   
   onMouseMove(MouseEvent e) {
       if( buttons & MOUSE_BTN_LEFT > 0 ) { //LEFT
-        print(e.movement);
+        //print(e.movement);
         view.canvas.dispatchEvent(
             new CustomEvent('fielddrag', 
               detail: new DragData(movement(e), buttons, e)));
