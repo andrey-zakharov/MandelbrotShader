@@ -1,12 +1,14 @@
-
-precision mediump float;
+//1M zoom
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
 
 uniform lowp vec4 u_color;
 uniform vec2 u_viewport;
 uniform vec2 u_c;
 uniform float u_spot_radius; // calc from current range
-//uniform vec2 u_minrange;
-//uniform vec2 u_maxrange;
 uniform vec4 u_range; // xy - min, zw - max
 
 varying vec2 v_texCoord;

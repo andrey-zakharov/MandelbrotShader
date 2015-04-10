@@ -1,12 +1,14 @@
-
-precision mediump float;// highp not on all platforms
-
+//148k -zoom on mediump
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
 uniform lowp vec4 u_color;
 uniform vec2 u_viewport;
-//uniform vec2 u_minrange;
-//uniform vec2 u_maxrange;
 uniform vec4 u_range; // xy - min, zw - max
-uniform lowp vec2 u_c; 
+uniform vec2 u_c;
+uniform float u_R; // precalculate
 varying vec2 v_texCoord;
 #define KMAX 250
 
@@ -31,20 +33,19 @@ vec4 getKmax( in vec2 p ) {
   vec4 res = vec4(0.0, 0.0, 0.01, 0.0);
 
   vec2 z = p;
-  float r = R(u_c);
 
   for(int i = 0; i < KMAX; i++) {
     z = f( z );
 
-    if ( length(z) > r ) {
-      res.x = length(z) / r;
+    if ( length(z) > u_R ) {
+      res.x = length(z) / u_R;
       res.y = float(i);
       //res.z = R(c);
       return res;
     }
   }
 
-  res.x = length(z) / r;
+  res.x = length(z) / u_R;
   res.y = float(KMAX);
   return res;
 

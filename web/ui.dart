@@ -28,6 +28,7 @@ class GlView {
   CanvasElement canvas;
   RenderingContext gl;
   Field field;
+  Element _status;
   
   num lastUpdate = 0.0;
 
@@ -36,23 +37,34 @@ class GlView {
         width: document.body.clientWidth~/2, 
         height: window.innerHeight
     );
-    canvas.attributes["id"] = id;
-    document.body.children.add(canvas);
-    gl = canvas.getContext3d();
+    //canvas.attributes["id"] = id;
+    Element container = new DivElement();
+    container.id = id;
+    container.children.add(canvas);
+    document.body.children.add(container);
+    _status = new DivElement();
+    _status.classes.add("field-status");
+    container.children.add(_status);
+    gl = canvas.getContext3d(depth:false);
     
     if (gl == null) {
       status('Простите, ваш браузер не поддерживает WebGl');
       return;
     }
     
+    print(gl.getSupportedExtensions());
+    
     gl.viewport(0, 0, canvas.width, canvas.height);
     window.onResize.listen(this.onResize);
 
     field = new Field(gl, vs, fs );
+    status( "zoom: ${field.getZoom()}");
 
   }
   
-  
+  status(var st) {
+    _status.innerHtml= "${st}";
+  }
   
   void onResize(e) {
     this.canvas.width = document.body.clientWidth~/2;
@@ -133,7 +145,8 @@ class Controls {
   }
   
   updateStatus() {
-    status("Square: ${view.field.range.width * view.field.range.height}, ${view.field.range}");
+    //status("Square: ${view.field.range.width * view.field.range.height}, ${view.field.range}");
+    view.status( "zoom: ${view.field.getZoom()}");
   }
 
   onMouseDown(MouseEvent e) {

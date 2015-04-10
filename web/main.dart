@@ -10,6 +10,7 @@ import 'dart:js';
 
 part 'ui.dart';
 part 'field.dart';
+part 'spot.dart';
 
 final String VS_SHADER_FILE = 'plain.vs.glsl';
 final String FS_SHADER_FILE = 'mandel.fs.glsl';
@@ -29,8 +30,10 @@ main() {
   //
   //new FileReader(VS_SHADER_FILE).readAsText(blob)
   //HttpRequest.getString(VS_SHADER_FILE).then(print);
+  status("Initializing UI...");
   initUI();
 
+  status("Loading...");
   HttpRequest.getString(VS_SHADER_FILE).then((String vshader) =>
       HttpRequest.getString(FS_JULIA_SHADER_FILE).then((String julia_fshader) =>
     HttpRequest.getString(FS_SHADER_FILE).then((String fshader) {
@@ -54,7 +57,8 @@ main() {
       
       document.body.children.add(stats.container);
       stats.container.style.position = 'absolute';
-      stats.container.style.bottom = '0px';
+      stats.container.style.top = '0px';
+      stats.container.style.right = '0px';
       
       mview.field.setSpot(jview.field.getJuliaConst());
       mview.update();
@@ -65,7 +69,7 @@ main() {
  
       
       //querySelector("#shader-vx").text, querySelector("#shader-fx").text);
-  print("loading...");
+  //print("loading...");
 }
 
 void updateJConst(MouseEvent e) {
@@ -73,10 +77,11 @@ void updateJConst(MouseEvent e) {
   jview.field.setJuliaConst(mview.field.mapToRange(e.layer));
   mview.field.setSpot(jview.field.getJuliaConst()); // update spot
   jview.update();
-  mview.update();
+  //mview.update();
 }
 
 status(String message) {
   var status = querySelector('#status');
+  print(message);
   status.innerHtml = '<p>${message}</p>';
 }

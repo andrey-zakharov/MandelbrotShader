@@ -7,6 +7,7 @@ class Field implements Tweenable {
   Program program; // shaders
   int kmax = 250;
   Point _currentC; // current const of Julia set
+  
 
   Field(this.gl, String vertexShader, String fragmentShader) {
     program = initProgram(vertexShader, fragmentShader);
@@ -92,17 +93,12 @@ class Field implements Tweenable {
     UniformLocation viewport = gl.getUniformLocation(program, "u_viewport");
     UniformLocation u_kmax = gl.getUniformLocation(program, "u_kmax");
     UniformLocation u_range = gl.getUniformLocation(program, "u_range");
-    UniformLocation u_c = gl.getUniformLocation(program, "u_c");
-    if( u_c != null ) {
+    
+    setJuliaConst(new Point( -0.8, 0.156));
       //var c = new Point( -0.74543, 0.11301 );
-      _currentC = new Point( -0.8, 0.156);
       //gl.uniform2f(u_c, -0.8, 0.156);
       //gl.uniform2f(u_c,  0.285,  0.01);
      // gl.uniform2f(u_c,  -0.0085 , 0.71);
-      gl.uniform2f(u_c, _currentC.x, _currentC.y );
-      var r = R(_currentC);
-      setRange( new Rectangle(-r, -r, 2*r, 2*r) );
-    }
     
     gl.uniform2f(viewport, gl.drawingBufferWidth, gl.drawingBufferHeight);
     gl.uniform4f(u_range, range.left, range.bottom, range.right, range.top);
@@ -159,6 +155,8 @@ class Field implements Tweenable {
         gl.uniform1f(u_spot, radius);     
       }
   }
+  
+  num getZoom() => 1 / range.width;
 
   // unused
   initTexture() {
@@ -235,6 +233,10 @@ class Field implements Tweenable {
       gl.uniform2f(u_c, c.x, c.y );
       var r = R(c);
       setRange( new Rectangle(-r, -r, 2*r, 2*r) );
+      UniformLocation u_R = gl.getUniformLocation(program, "u_R");
+      if( u_R != null ) {
+        gl.uniform1f(u_R, r);
+      }
       //update();
     }
   }
