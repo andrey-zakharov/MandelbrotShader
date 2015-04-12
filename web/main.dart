@@ -14,7 +14,7 @@ part 'spot.dart';
 
 final String VS_SHADER_FILE = 'plain.vs.glsl';
 final String FS_SHADER_FILE = 'mandel.fs.glsl';
-final List FS_PALLETE_FILES = ['pal1.glsl', 'pal2.glsl'];
+final List FS_PALLETE_FILES = ['pal1.glsl', 'pal2.glsl', 'pal3.glsl'];
 int currentPallete = 0;
 final String FS_JULIA_SHADER_FILE = 'julia.fs.glsl';
 

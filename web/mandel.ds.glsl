@@ -14,9 +14,58 @@ uniform vec4 u_range; // xy - min, zw - max
 varying vec2 v_texCoord;
 #define MAXK 250
 
-vec2 mult(in vec2 a, in vec2 b) {
+
+// double precise complex: vec4,
+// xy - float, float is for real
+// zw - float, float is for im
+vec2 ds_set(in float a) { return vec2(a, 0.0); }
+
+ // set complex from simple a
+vec4 ds_complex_set(in vec2 a) { return vec4(a.x, 0.0, a.y, 0.0); }
+
+vec2 ds_add (in vec2 dsa, in vec2 dsb) {
+  vec2 dsc;
+  float t1, t2, e;
+
+  t1 = dsa.x + dsb.x;
+  e = t1 - dsa.x;
+  t2 = ((dsb.x - e) + (dsa.x - (t1 - e))) + dsa.y + dsb.y;
+
+  dsc.x = t1 + t2;
+  dsc.y = t2 - (dsc.x - t1);
+  return dsc;
+}
+
+vec2 ds_mul (in vec2 dsa, in vec2 dsb) {
+  vec2 dsc;
+  float c11, c21, c2, e, t1, t2;
+  float a1, a2, b1, b2, cona, conb, split = 8193.;
+
+  cona = dsa.x * split;
+  conb = dsb.x * split;
+  a1 = cona - (cona - dsa.x);
+  b1 = conb - (conb - dsb.x);
+  a2 = dsa.x - a1;
+  b2 = dsb.x - b1;
+
+  c11 = dsa.x * dsb.x;
+  c21 = a2 * b2 + (a2 * b1 + (a1 * b2 + (a1 * b1 - c11)));
+
+  c2 = dsa.x * dsb.y + dsa.y * dsb.x;
+
+  t1 = c11 + c2;
+  e = t1 - c11;
+  t2 = dsa.y * dsb.y + ((c2 - e) + (c11 - (t1 - e))) + c21;
+
+  dsc.x = t1 + t2;
+  dsc.y = t2 - (dsc.x - t1);
+
+  return dsc;
+}
+
+vec4 mult(in vec4 a, in vec4 b) {
   return vec2(
-    a.x*b.x - a.y*b.y,
+    ds_mul(a.xy, b.xy) - a.y*b.y,
     a.x*b.y + a.y*b.x
   );
 }
@@ -63,10 +112,11 @@ vec4 getKmax( in vec2 c ) {
 }
 /**
  * k.x - length of z
- * k,y - iteration
+ * k.y - iteration
  * k.z - is it outside
  */
 void pallete(in vec2 pos, in vec4 k);
 void main() {
     pallete(v_texCoord, getKmax(v_texCoord));
 }
+  

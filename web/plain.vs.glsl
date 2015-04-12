@@ -1,5 +1,8 @@
-
-precision mediump float;
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
 
 attribute vec2 a_position;
 attribute vec2 a_range;
