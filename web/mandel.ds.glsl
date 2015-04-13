@@ -36,6 +36,20 @@ vec2 ds_add (in vec2 dsa, in vec2 dsb) {
   return dsc;
 }
 
+// Substract: res = ds_sub(a, b) => res = a - b
+vec2 ds_sub (vec2 dsa, vec2 dsb) {
+  vec2 dsc;
+  float e, t1, t2;
+
+  t1 = dsa.x - dsb.x;
+  e = t1 - dsa.x;
+  t2 = ((-dsb.x - e) + (dsa.x - (t1 - e))) + dsa.y - dsb.y;
+
+  dsc.x = t1 + t2;
+  dsc.y = t2 - (dsc.x - t1);
+  return dsc;
+}
+
 vec2 ds_mul (in vec2 dsa, in vec2 dsb) {
   vec2 dsc;
   float c11, c21, c2, e, t1, t2;
@@ -63,38 +77,55 @@ vec2 ds_mul (in vec2 dsa, in vec2 dsb) {
   return dsc;
 }
 
-vec4 mult(in vec4 a, in vec4 b) {
-  return vec2(
-    ds_mul(a.xy, b.xy) - a.y*b.y,
-    a.x*b.y + a.y*b.x
-  );
+// Compare: res = -1 if a < b
+//              = 0 if a == b
+//              = 1 if a > b
+float ds_compare(vec2 dsa, vec2 dsb) {
+  if (dsa.x < dsb.x) return -1.;
+  else if (dsa.x == dsb.x) {
+    if (dsa.y < dsb.y) return -1.;
+    else if (dsa.y == dsb.y) return 0.;
+      else return 1.;
+  } else return 1.;
 }
 
+vec4 complex_mult(in vec4 a, in vec4 b) {
+  vec2 mxy = ds_sub( ds_mul(a.xy, b.xy), ds_mul(a.zw, b.zw) );
+  vec2 mzw = ds_add( ds_mul(a.xy, b.zw), ds_mul(a.zw, b.xy) );
+  return vec4( mxy, mzw );
+}
 
-vec2 f( in vec2 z, in vec2 c ) {
-  vec2 newr = mult(z, z) + c;
-  return newr;
+vec4 complex_add( in vec4 a, in vec4 b ) {
+  return vec4( ds_add(a.xy, b.xy), ds_add( a.zw, b.zw ) );
+}
+
+vec2 complex_sqlen( in vec4 a ) {
+  return ds_add( ds_mul( a.xy, a.xy ), ds_mul( a.zw, a.zw ) );
+}
+
+vec4 f( in vec4 z, in vec4 c ) {
+  return complex_add( complex_mult(z, z), c );
 }
 
 float R( in vec2 c ) {
   return (1.0 + sqrt( 1.0 + 4.0*length(c) )) / 2.0;
 }
 
-vec4 getKmax( in vec2 c ) {
+vec4 getKmax( in vec4 c ) {
   float dist = 1e20;
   vec2 point = vec2(-0.5, 0.0);
   
 
   vec4 res = vec4(0.01, 0.01, 0.01, 0.0);
 
-  vec2 z = c;
+  vec4 z = c;
 
   for (int k = 0; k < MAXK; k++ ) {
     z = f( z, c );
-    dist = min( dist, length(z-point) );
+    //dist = min( dist, length(z-point) );
 
-    if ( z.x*z.x + z.y*z.y >= 4.0 ) {
-      res.x = length(z);
+    if ( ds_compare(complex_sqlen(z), vec2(4.0, 0.0)) > .0 ) {
+      res.x = length(z.xz); // get rounded RE (x) and IM(z) parts
       res.y = float(k);
       res.z = 1.0;
       res.a = dist;
@@ -103,7 +134,7 @@ vec4 getKmax( in vec2 c ) {
     }
   }
 
-  res.x = length(z);
+  res.x = length(z.xz);
   res.y = float(MAXK);
   res.z = 0.0;
   res.a = dist;
@@ -117,6 +148,6 @@ vec4 getKmax( in vec2 c ) {
  */
 void pallete(in vec2 pos, in vec4 k);
 void main() {
-    pallete(v_texCoord, getKmax(v_texCoord));
+    pallete(v_texCoord, getKmax(vec4(v_texCoord.x, 0.0, v_texCoord.y, 0.0)));
 }
   

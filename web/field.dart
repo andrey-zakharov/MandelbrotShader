@@ -172,9 +172,17 @@ class Field implements Tweenable {
     gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, rangeList, RenderingContext.STATIC_DRAW);
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, null);
   }
-
+  
+  num getZoom() => 1 / range.width;
+  
   setRange(Rectangle newRange) {
+    
+    num prevZoom = this.getZoom();
     this.range = newRange;
+    if( prevZoom < 1000.0 && getZoom() >= 1000.0 ) { // fired
+      //changePrecise;  
+    }
+    
     _loadRangeBuffer();
     setSpotRadius((this.range.width+this.range.height)/500.0);
   }
@@ -185,8 +193,7 @@ class Field implements Tweenable {
         gl.uniform1f(u_spot, radius);     
       }
   }
-  
-  num getZoom() => 1 / range.width;
+
 
   // unused
   initTexture() {
