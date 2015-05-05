@@ -1,35 +1,25 @@
 part of mandel;
 
+enum Precise { SINGLE, DOUBLE, QUART }
+
+
+class ShaderVertexAttribute {
+  String attrName; //in shader
+  
+}
 
 /// entire field of view
 class Field implements Tweenable {
   RenderingContext gl;
   Program program; // shaders
   int kmax = 250;
+  double zoom; 
   Point _currentC; // current const of Julia set
   
-
-  Field(this.gl, String vertexShader, String fragmentShader) {
-    program = initProgram(vertexShader, fragmentShader);
-    initBuffers();
-    initUniforms();
-  }
-  
-  //void reset() { setRange(new Rectangle(-2.0, -1.5, 3, 3)); update(); }
-
-  draw() {
-
-    gl.clearColor(0.0, 0.0, 0.0, 1);
-    gl.clear(RenderingContext.COLOR_BUFFER_BIT);
-    gl.drawArrays(RenderingContext.TRIANGLES, 0, vertices.length ~/ _dims);
-  }
-
-  var _fractalTexture;
-
+  Precise currentPrecise = Precise.SINGLE;
+  //var _fractalTexture;
   final int _dims = 2;
-
   static num planeSize = 1.0; // around 0,0
-
   final Float32List vertices = new Float32List.fromList([
     -planeSize, -planeSize,
     planeSize, planeSize,
@@ -39,12 +29,35 @@ class Field implements Tweenable {
     planeSize, planeSize,
     planeSize, -planeSize
   ]);
+  
+  final Float32List texCoords = new Float32List.fromList([
+     .0,  .0,
+    1.0, 1.0,
+     .0, 1.0,
+    
+     .0,  .0,
+    1.0, 1.0,
+    1.0,  .0
+  ]);
 
   Rectangle range = new Rectangle(-2.0, -1.5, 3, 3);
 
   Buffer vertexBuffer;
-  Buffer rangeBuffer;
+  Buffer rangeBuffer = null;
 
+  Field(this.gl, String vertexShader, String fragmentShader) {
+    program = initProgram(vertexShader, fragmentShader);
+    initAttributes();
+    initUniforms();
+  }
+  
+  //void reset() { setRange(new Rectangle(-2.0, -1.5, 3, 3)); update(); }
+
+  draw() {
+    gl.clearColor(0.0, 0.0, 0.0, 1);
+    gl.clear(RenderingContext.COLOR_BUFFER_BIT);
+    gl.drawArrays(RenderingContext.TRIANGLES, 0, vertices.length ~/ _dims);
+  }
 
   initProgram(String vshader, String fshader) {
 
@@ -107,7 +120,7 @@ class Field implements Tweenable {
           throw new Exception(gl.getProgramInfoLog(program));
         }
         
-        //gl.useProgram(program);
+        gl.useProgram(program);
         
     }
   }
@@ -138,40 +151,60 @@ class Field implements Tweenable {
 
 
 
-  initBuffers() {
-
-    int aPosition = gl.getAttribLocation(program, "a_position");
-    int aRange = gl.getAttribLocation(program, "a_range");
-
-    vertexBuffer = gl.createBuffer();
-    gl.bindBuffer(RenderingContext.ARRAY_BUFFER, vertexBuffer);
-    gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, vertices, RenderingContext.STATIC_DRAW);
-    gl.enableVertexAttribArray(aPosition);
-    gl.vertexAttribPointer(aPosition, _dims, RenderingContext.FLOAT, false, 0, 0);
-
-    rangeBuffer = gl.createBuffer();
-    _loadRangeBuffer();
-
-    gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
-    gl.enableVertexAttribArray(aRange);
-    gl.vertexAttribPointer(aRange, _dims, RenderingContext.FLOAT, false, 0, 0);
+  initAttributes() {
+    _initVertexAttribute(program, "a_texture", texCoords, itemsPerVertex: _dims );
+    _initVertexAttribute(program, "a_position", vertices, itemsPerVertex: _dims );
+    _initVertexAttribute(program, "a_range", _getRangeBuffer(), itemsPerVertex: _dims );
+    
   }
 
-  _loadRangeBuffer() {
-    gl.bindBuffer(RenderingContext.ARRAY_BUFFER, rangeBuffer);
-    Float32List rangeList = new Float32List.fromList([
-        range.left, range.bottom,
-        range.right, range.top,
-        range.left, range.top,
-
-        range.left, range.bottom,
-        range.right, range.top,
-        range.right, range.bottom
-
-    ]);
-    gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, rangeList, RenderingContext.STATIC_DRAW);
+  _initVertexAttribute(Program program, String attrName, Float32List data, 
+                       {itemsPerVertex: 4, type: RenderingContext.FLOAT} ) {
+    int idx = gl.getAttribLocation(program, attrName);
+    
+    if( idx == -1 ) {
+      print("No such attribute: \"${attrName}\" in program ${program}");
+      var an = gl.getProgramParameter(program, RenderingContext.ACTIVE_ATTRIBUTES);
+      
+      for(int i = 0; i < an; i++ ) {
+        ActiveInfo ai = gl.getActiveAttrib(program, i);
+        print("${ai.type} ${ai.name} ${ai.size}");
+      }
+      
+      Shader vs = gl.getAttachedShaders(program)
+        .firstWhere((sh) => 
+            gl.getShaderParameter(sh, RenderingContext.SHADER_TYPE) == RenderingContext.VERTEX_SHADER);
+      print(gl.getShaderSource(vs));
+      return;
+    }
+    
+    //print("${attrName} = ${idx}");
+    
+    Buffer buffer = gl.createBuffer();
+    gl.bindBuffer(RenderingContext.ARRAY_BUFFER, buffer);
+    gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, data, RenderingContext.STATIC_DRAW);
+    gl.vertexAttribPointer(idx, itemsPerVertex, type, false, 0, 0);
+    gl.enableVertexAttribArray(idx);
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, null);
   }
+  
+  _loadData(Buffer buffer, var data) {
+      gl.bindBuffer(RenderingContext.ARRAY_BUFFER, buffer);
+      gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, data, RenderingContext.STATIC_DRAW);
+      gl.bindBuffer(RenderingContext.ARRAY_BUFFER, null);
+  }
+  
+  _getRangeBuffer() => new Float32List.fromList([
+    range.left, range.bottom,
+    range.right, range.top,
+    range.left, range.top,
+
+    range.left, range.bottom,
+    range.right, range.top,
+    range.right, range.bottom
+  ]);
+
+  _loadRangeBuffer() => _loadData(rangeBuffer, _getRangeBuffer());
   
   num getZoom() => 1 / range.width;
   

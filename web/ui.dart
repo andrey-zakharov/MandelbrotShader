@@ -20,6 +20,10 @@ initUI() {
     if( e.charCode == 'p'.codeUnitAt(0) ) {
       loadNextPallete();
     }
+    
+    if( e.charCode == 'd'.codeUnitAt(0) ) {
+          switchPrecise();
+        }
   });
   
 }
@@ -28,12 +32,23 @@ initUI() {
 loadNextPallete() {
   status("Changing pallete...");
   HttpRequest.getString(FS_PALLETE_FILES[++currentPallete % FS_PALLETE_FILES.length]).then((String pal) {
+    _cachedMandelPallete = pal;
     mview.field.updateFragmentShader(_cachedMandelShader + pal);
     status("");
     mview.update();
     
   });
    
+}
+
+switchPrecise() {
+  status("Loading precise shader...");
+    HttpRequest.getString(FS_SHADER_FILES[++currentShader % FS_SHADER_FILES.length]).then((String sh) {
+      _cachedMandelShader = sh;
+      mview.field.updateFragmentShader(sh + _cachedMandelPallete);
+      status("");
+      mview.update();
+    });
 }
 
 class DragData {
@@ -72,7 +87,7 @@ class GlView {
       return;
     }
     
-    print(gl.getSupportedExtensions());
+    //print(gl.getSupportedExtensions());
     
     gl.viewport(0, 0, canvas.width, canvas.height);
     window.onResize.listen(this.onResize);

@@ -5,13 +5,13 @@
   precision mediump float;
 #endif
 
-uniform lowp vec4 u_color;
 uniform vec2 u_viewport;
 uniform vec2 u_c;
 uniform float u_spot_radius; // calc from current range
 uniform vec4 u_range; // xy - min, zw - max
 
 varying vec2 v_texCoord;
+varying vec2 v_range;
 #define MAXK 250
 
 vec2 mult(in vec2 a, in vec2 b) {
@@ -68,5 +68,5 @@ vec4 getKmax( in vec2 c ) {
  */
 void pallete(in vec2 pos, in vec4 k);
 void main() {
-    pallete(v_texCoord, getKmax(v_texCoord));
+    pallete(v_texCoord, getKmax(v_range));
 }

@@ -5,13 +5,10 @@
   precision mediump float;
 #endif
 
-uniform lowp vec4 u_color;
-uniform vec2 u_viewport;
-uniform vec2 u_c;
-uniform float u_spot_radius; // calc from current range
 uniform vec4 u_range; // xy - min, zw - max
 
 varying vec2 v_texCoord;
+varying vec2 v_range;
 #define MAXK 250
 
 
@@ -127,7 +124,7 @@ vec4 getKmax( in vec4 c ) {
     if ( ds_compare(complex_sqlen(z), vec2(4.0, 0.0)) > .0 ) {
       res.x = length(z.xz); // get rounded RE (x) and IM(z) parts
       res.y = float(k);
-      res.z = 1.0;
+      res.z = length(z.yw);
       res.a = dist;
       //res.z = R(c);
       return res; // return k где  мы расходимся в бесконечность
@@ -136,7 +133,7 @@ vec4 getKmax( in vec4 c ) {
 
   res.x = length(z.xz);
   res.y = float(MAXK);
-  res.z = 0.0;
+  res.z = length(z.yw);
   res.a = dist;
   return res;
 
@@ -148,6 +145,9 @@ vec4 getKmax( in vec4 c ) {
  */
 void pallete(in vec2 pos, in vec4 k);
 void main() {
-    pallete(v_texCoord, getKmax(vec4(v_texCoord.x, 0.0, v_texCoord.y, 0.0)));
+    //pallete(v_texCoord, getKmax(vec4(v_texCoord.x, 0.0, v_texCoord.y, 0.0)));
+    gl_FragColor.xy = v_texCoord.xy;
+    //gl_FragColor.b = 1.0;
+    gl_FragColor.a = 1.0;
 }
   
