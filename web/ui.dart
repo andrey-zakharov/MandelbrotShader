@@ -68,29 +68,39 @@ class GlView {
   num lastUpdate = 0.0;
 
   GlView(String id, String vs, String fs) {
-    canvas = new CanvasElement(
-        width: document.body.clientWidth~/2, 
-        height: window.innerHeight
-    );
     //canvas.attributes["id"] = id;
     Element container = new DivElement();
     container.id = id;
-    container.children.add(canvas);
     document.body.children.add(container);
+
     _status = new DivElement();
     _status.classes.add("field-status");
     container.children.add(_status);
+
+    canvas = new CanvasElement(
+        width: container.clientWidth,
+        height: container.clientHeight
+    );
+
     gl = canvas.getContext3d(depth:false);
     
     if (gl == null) {
-      status('Простите, ваш браузер не поддерживает WebGl');
-      return;
+      status('Простите, ваш браузер не поддерживает WebGl http://webglreport.com/', "error");
+      throw new UnimplementedError("http://webglreport.com/");
     }
-    
+
     //print(gl.getSupportedExtensions());
-    
+
+
     gl.viewport(0, 0, canvas.width, canvas.height);
-    window.onResize.listen(this.onResize);
+    window.onResize.listen((e) {
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      update();
+    });
+
+    container.children.add(canvas);
 
     field = new Field(gl, vs, fs );
     status( "zoom: ${field.getZoom()}");
@@ -101,15 +111,12 @@ class GlView {
     
   }
   
-  status(var st) {
+  status(var st, [String cssClassName]) {
     _status.innerHtml= "${st}";
+    if ( cssClassName != null ) _status.classes.add(cssClassName);
   }
-  
-  void onResize(e) {
-    this.canvas.width = document.body.clientWidth~/2;
-    this.canvas.height = window.innerHeight;
-    this.gl.viewport(0, 0, canvas.width, canvas.height);
-  }
+
+  dropStatus() => _status.classes.clear();
   
   update() {
     window.animationFrame.then(draw);
@@ -145,10 +152,12 @@ class Controls {
 
   final num minSelection = 5.0;
   int buttons = 0;
+
   //Element _el;
   //Field field; // to control
   GlView view;
   bool _animate = false;
+  Point _dragOrigin;
   bool get animate => _animate;
   void set animate(bool v) {
     if ( !v && zoomer != null ) {
@@ -158,6 +167,10 @@ class Controls {
     }
     _animate = v;
   }
+
+  EventStreamProvider<CustomEvent> onDragEvent = new EventStreamProvider('fielddrag');
+  EventStreamProvider<CustomEvent> onUpdateEvent = new EventStreamProvider('fieldupdate');
+
 
   Controls(this.view) {
     var _el = view.canvas;
@@ -195,14 +208,16 @@ class Controls {
     
     buttons |=  1 << e.button;
     //print("onMouseDown: ${e.button} ${buttons}");
+    _dragOrigin = e.client;
   }
 
   Point movement(ev) {
-      JsObject evnt = new JsObject.fromBrowserObject(ev);
+      /*JsObject evnt = new JsObject.fromBrowserObject(ev);
       if (evnt['webkitMovementX'] != null)
         return ev.movement;
       else
-        return new Point(evnt['mozMovementX'], evnt['mozMovementY']);
+        return new Point(evnt['mozMovementX'], evnt['mozMovementY']);*/
+    return ev.client - _dragOrigin;
   }
   
   onMouseMove(MouseEvent e) {
@@ -211,6 +226,7 @@ class Controls {
         view.canvas.dispatchEvent(
             new CustomEvent('fielddrag', 
               detail: new DragData(movement(e), buttons, e)));
+        _dragOrigin = e.client;
       }
       
       //status("btn:${buttons} ${view.field.range} - ${e.layer}  /  ${view.field.scaleToRange(e.client)} ");
@@ -224,12 +240,9 @@ class Controls {
     //buttons &= 1 << e.button;
     // no. it doesn't works completely
     buttons = 0;
+    _dragOrigin = null;
     //print("onMouseUp: ${e.button} ${buttons}");
   }
-
-  EventStreamProvider<CustomEvent> onDragEvent = new EventStreamProvider('fielddrag');
-  EventStreamProvider<CustomEvent> onUpdateEvent = new EventStreamProvider('fieldupdate');
-
 
 
   onCanvasDrag(CustomEvent e) {

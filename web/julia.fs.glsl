@@ -10,6 +10,7 @@ uniform vec4 u_range; // xy - min, zw - max
 uniform vec2 u_c;
 uniform float u_R; // precalculate
 varying vec2 v_texCoord;
+varying vec2 v_range;
 #define KMAX 250
 
 vec2 mult(in vec2 a, in vec2 b) {
@@ -52,8 +53,8 @@ vec4 getKmax( in vec2 p ) {
 }
 void main() {
     vec2 pos = vec2(
-      (v_texCoord.x),// / (u_range.z - u_range.x),
-      (v_texCoord.y)// / (u_range.w - u_range.y)
+      (v_range.x),// / (u_range.z - u_range.x),
+      (v_range.y)// / (u_range.w - u_range.y)
     );
     vec4 k = getKmax(pos);
     gl_FragColor.a = 1.0;

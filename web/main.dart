@@ -16,7 +16,7 @@ final String VS_SHADER_FILE = 'plain.vs.glsl';
 final List FS_SHADER_FILES = [ 'mandel.fs.glsl', 'mandel.ds.glsl'];
 int currentShader = 0;
 final List FS_PALLETE_FILES = ['pal1.glsl', 'pal2.glsl', 'pal3.glsl'];
-int currentPallete = 0;
+int currentPallete = 2;
 final String FS_JULIA_SHADER_FILE = 'julia.fs.glsl';
 
 //CanvasElement canvas;
@@ -26,10 +26,11 @@ Controls mcontrols, jcontrols;
 String _cachedMandelShader;
 String _cachedMandelPallete;
 
+// ONE more thing before we go :)
 Stats stats = new Stats();
 
 main() {
-  
+  //http://webglreport.com/?v=1
   //
   //new FileReader(VS_SHADER_FILE).readAsText(blob)
   //HttpRequest.getString(VS_SHADER_FILE).then(print);
@@ -37,6 +38,7 @@ main() {
   initUI();
 
   status("Loading...");
+  //TODO queued loader 
   HttpRequest.getString(VS_SHADER_FILE).then((String vshader) =>
       HttpRequest.getString(FS_JULIA_SHADER_FILE).then((String julia_fshader) =>
           HttpRequest.getString(FS_SHADER_FILES[currentShader]).then((String fshader) =>
@@ -45,35 +47,32 @@ main() {
       _cachedMandelShader = fshader;
       _cachedMandelPallete = pal;
       mview = new GlView("mandel", vshader, fshader + pal);
-      if(mview == null) return;
       mcontrols = new Controls(mview);
 
-      
-      /*jview = new GlView("julia", vshader, julia_fshader);
-      if(jview == null) return;
+
+      jview = new GlView("julia", vshader, julia_fshader);
+      jview.field.setRange(new Rectangle( -2, -2, 4, 4 ));
       jcontrols = new Controls(jview);
-      
-      mview.canvas.onContextMenu.listen(updateJConst);*/
+
+      mview.canvas.onContextMenu.listen(updateJConst);
       mview.canvas.onMouseMove.listen((MouseEvent e ) {
-      //mcontrols.onDragEvent.forElement(mview.canvas).listen((CustomEvent e) {
+        //mcontrols.onDragEvent.forElement(mview.canvas).listen((CustomEvent e) {
         if ((mcontrols.buttons & Controls.MOUSE_BTN_RIGHT) != 0 ) {
           updateJConst(e);
         }
       });
-      
+
       document.body.children.add(stats.container);
       stats.container.style.position = 'absolute';
       stats.container.style.top = '0px';
       stats.container.style.right = '0px';
-      
+
       //mview.field.setSpot(jview.field.getJuliaConst());
       mview.update();
-      //jview.update();
+      jview.update();
       status('');
-  
     }))));
- 
-      
+
       //querySelector("#shader-vx").text, querySelector("#shader-fx").text);
   //print("loading...");
 }
@@ -81,7 +80,7 @@ main() {
 void updateJConst(MouseEvent e) {
   e.preventDefault();
   jview.field.setJuliaConst(mview.field.mapToRange(e.layer));
-  mview.field.setSpot(jview.field.getJuliaConst()); // update spot
+  //mview.field.setSpot(jview.field.getJuliaConst()); // update spot
   jview.update();
   //mview.update();
 }

@@ -154,11 +154,10 @@ class Field implements Tweenable {
   initAttributes() {
     _initVertexAttribute(program, "a_texture", texCoords, itemsPerVertex: _dims );
     _initVertexAttribute(program, "a_position", vertices, itemsPerVertex: _dims );
-    _initVertexAttribute(program, "a_range", _getRangeBuffer(), itemsPerVertex: _dims );
-    
+    rangeBuffer = _initVertexAttribute(program, "a_range", _getRangeBuffer(), itemsPerVertex: _dims );
   }
 
-  _initVertexAttribute(Program program, String attrName, Float32List data, 
+  Buffer _initVertexAttribute(Program program, String attrName, Float32List data,
                        {itemsPerVertex: 4, type: RenderingContext.FLOAT} ) {
     int idx = gl.getAttribLocation(program, attrName);
     
@@ -175,22 +174,23 @@ class Field implements Tweenable {
         .firstWhere((sh) => 
             gl.getShaderParameter(sh, RenderingContext.SHADER_TYPE) == RenderingContext.VERTEX_SHADER);
       print(gl.getShaderSource(vs));
-      return;
+      return null;
     }
     
     //print("${attrName} = ${idx}");
     
     Buffer buffer = gl.createBuffer();
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, buffer);
-    gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, data, RenderingContext.STATIC_DRAW);
+    gl.bufferData(RenderingContext.ARRAY_BUFFER, data, RenderingContext.STATIC_DRAW);
     gl.vertexAttribPointer(idx, itemsPerVertex, type, false, 0, 0);
     gl.enableVertexAttribArray(idx);
     gl.bindBuffer(RenderingContext.ARRAY_BUFFER, null);
+    return buffer;
   }
   
   _loadData(Buffer buffer, var data) {
       gl.bindBuffer(RenderingContext.ARRAY_BUFFER, buffer);
-      gl.bufferDataTyped(RenderingContext.ARRAY_BUFFER, data, RenderingContext.STATIC_DRAW);
+      gl.bufferData(RenderingContext.ARRAY_BUFFER, data, RenderingContext.STATIC_DRAW);
       gl.bindBuffer(RenderingContext.ARRAY_BUFFER, null);
   }
   
@@ -222,16 +222,16 @@ class Field implements Tweenable {
   
   setSpotRadius(double radius) {
     UniformLocation u_spot = gl.getUniformLocation(program, "u_spot_radius");
-      if( u_spot != null ) {
-        gl.uniform1f(u_spot, radius);     
-      }
+    if( u_spot != null ) {
+      gl.uniform1f(u_spot, radius);
+    }
   }
 
 
   // unused
   initTexture() {
 
-    _fractalTexture = gl.createTexture();
+    //_fractalTexture = gl.createTexture();
     gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MIN_FILTER, RenderingContext.NEAREST);
     gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_MAG_FILTER, RenderingContext.NEAREST);
     gl.texParameteri(RenderingContext.TEXTURE_2D, RenderingContext.TEXTURE_WRAP_S, RenderingContext.CLAMP_TO_EDGE);
@@ -298,25 +298,25 @@ class Field implements Tweenable {
   void setJuliaConst(Point c) {
     
     UniformLocation u_c = gl.getUniformLocation(program, "u_c");
-    if( u_c != null ) {
-      _currentC = c;
-      gl.uniform2f(u_c, c.x, c.y );
-      var r = R(c);
-      setRange( new Rectangle(-r, -r, 2*r, 2*r) );
-      UniformLocation u_R = gl.getUniformLocation(program, "u_R");
-      if( u_R != null ) {
-        gl.uniform1f(u_R, r);
-      }
-      //update();
+    if ( u_c == null ) return; //there is not such uniform in this shader
+
+    _currentC = c;
+    gl.uniform2f(u_c, c.x, c.y );
+    var r = R(c);
+    setRange( new Rectangle(-r, -r, 2*r, 2*r) );
+    UniformLocation u_R = gl.getUniformLocation(program, "u_R");
+
+    if( u_R != null ) {
+      gl.uniform1f(u_R, r);
     }
+    //update();
+
   }
   
   setSpot(Point c) {
     UniformLocation u_c = gl.getUniformLocation(program, "u_c");
-        if( u_c != null ) {
-          _currentC = c;
-          gl.uniform2f(u_c, c.x, c.y );
-        }
-    
+    if ( u_c == null ) return;
+    _currentC = c;
+    gl.uniform2f(u_c, c.x, c.y );
   }
 }
