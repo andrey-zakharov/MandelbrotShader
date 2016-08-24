@@ -1,13 +1,17 @@
+//1M zoom
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+  precision highp float;
+#else
+  precision mediump float;
+#endif
 
-precision mediump float;
-
-uniform lowp vec4 u_color;
 uniform vec2 u_viewport;
-//uniform vec2 u_minrange;
-//uniform vec2 u_maxrange;
+uniform vec2 u_c;
+uniform float u_spot_radius; // calc from current range
 uniform vec4 u_range; // xy - min, zw - max
 
 varying vec2 v_texCoord;
+varying vec2 v_range;
 #define MAXK 250
 
 vec2 mult(in vec2 a, in vec2 b) {
@@ -28,16 +32,23 @@ float R( in vec2 c ) {
 }
 
 vec4 getKmax( in vec2 c ) {
+  float dist = 1e20;
+  vec2 point = vec2(-0.5, 0.0);
+  
+
   vec4 res = vec4(0.01, 0.01, 0.01, 0.0);
 
   vec2 z = c;
 
   for (int k = 0; k < MAXK; k++ ) {
     z = f( z, c );
+    dist = min( dist, length(z-point) );
 
-    if ( length(z) >= 2.0 ) {
+    if ( z.x*z.x + z.y*z.y >= 4.0 ) {
       res.x = length(z);
       res.y = float(k);
+      res.z = 1.0;
+      res.a = dist;
       //res.z = R(c);
       return res; // return k где  мы расходимся в бесконечность
     }
@@ -45,19 +56,17 @@ vec4 getKmax( in vec2 c ) {
 
   res.x = length(z);
   res.y = float(MAXK);
+  res.z = 0.0;
+  res.a = dist;
   return res;
 
 }
+/**
+ * k.x - length of z
+ * k,y - iteration
+ * k.z - is it outside
+ */
+void pallete(in vec2 pos, in vec4 k);
 void main() {
-    vec2 pos = vec2(
-      (v_texCoord.x),// / (u_range.z - u_range.x),
-      (v_texCoord.y)// / (u_range.w - u_range.y)
-    );
-    vec4 k = getKmax(pos);
-    float maxr = R(pos); 
-    gl_FragColor.r = 0.0;
-    gl_FragColor.g = k.y / float(MAXK);
-    gl_FragColor.b = k.x >= maxr ? (k.x - maxr) * (k.y / float(MAXK)) / maxr : k.x / maxr;
-    gl_FragColor.a = 1.0;
+    pallete(v_texCoord, getKmax(v_range));
 }
-  
