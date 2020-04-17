@@ -1,0 +1,26 @@
+name: Dart CI
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image:  google/dart:latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: pub get
+    - name: Run tests
+      run: pub run test
+    - name: Build Dist
+      run: pub run build
+    - name: action-push
+      uses: ludeeus/action-push@0.0.1
