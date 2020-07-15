@@ -1,5 +1,5 @@
 # Mandelbrot-on-shader
-live demo:
+## live demo
 http://andrey-zakharov.github.io/MandelbrotShader
 
 # Explain what it is
