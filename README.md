@@ -11,3 +11,6 @@ This is visualization of Mandelbrot set and Julia set. Well know, that the Mande
  - scroll mouse -- zoom.
  - right mouse -- click right mouse on Mandelbrot set *(left picture)* to draw Julia set for proper _c_.
 
+# TBD 
+ - UI mobile support
+ 
